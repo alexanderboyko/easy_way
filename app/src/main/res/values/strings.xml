@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Easy Way</string>
+
+    <string name="facebook_app_id">2469237073300423</string>
+    <string name="fb_login_protocol_scheme">fb2469237073300423</string>
+
+    <!--XML default strings-->
+    <string name="default_dot"> • </string>
+    <string name="default_short">LR</string>
+    <string name="default_medium">Lorem</string>
+    <string name="default_long">Lorem ipsum dolor</string>
+    <string name="default_very_long">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+
+    <string name="continue_with_facebook">Continue with Facebook</string>
+    <string name="welcome_to_easy_way">Welcome to Easy Way.</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="sign_up">Sign up</string>
+    <string name="by_tapping_one_of_below_login_options_you_accept">By tapping one of below login options, you accept Terms of usage</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+    <string name="birthday">Birthday</string>
+    <string name="sex">Sex</string>
+    <string name="male">Male</string>
+    <string name="about">About me</string>
+    <string name="optionally">Optionally</string>
+    <string name="explore_propose">Try \"Camera\"</string>
+    <string name="add_offer">Add offer</string>
+    <string name="explore">Explore</string>
+    <string name="profile">Profile</string>
+    <string name="inbox">Inbox</string>
+    <string name="my_offers">My offers</string>
+    <string name="saved">Saved</string>
+    <string name="settings">Settings</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="search">Search</string>
+</resources>

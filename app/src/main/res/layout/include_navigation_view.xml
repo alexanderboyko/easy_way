@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:background="@color/icons"
+    android:clickable="true">
+
+    <RelativeLayout
+        android:id="@+id/nav_header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:background="@color/icons"
+        android:clickable="true"
+        android:paddingBottom="10dp"
+        android:paddingEnd="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="10dp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/nav_header_user_photo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:tint="@color/icons"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/nav_header_no_photo_layout"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/drawable_oval_primary_color"
+            android:gravity="center"
+            android:visibility="visible">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:tint="@color/icons"
+                app:srcCompat="@drawable/ic_person_white_24px" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/nav_header_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/nav_header_email"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/nav_header_edit_icon"
+            android:layout_toStartOf="@+id/nav_header_edit_icon"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="@string/default_long"
+            android:textColor="@color/primary_text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/nav_header_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/nav_header_edit_icon"
+            android:layout_toStartOf="@+id/nav_header_edit_icon"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="@string/default_long"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/nav_header_edit_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="8dp"
+            app:srcCompat="@drawable/ic_edit_white_24px"
+            app:tint="@color/primary" />
+    </RelativeLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nav_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="160dp"
+        android:clickable="true"
+        android:clipToPadding="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/nav_add"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="8dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_add_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_add_white_24px"
+                    app:tint="@color/color_accent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_add_icon"
+                    android:layout_toRightOf="@+id/nav_add_icon"
+                    android:gravity="center|start"
+                    android:text="@string/add_offer"
+                    android:textColor="@color/color_accent"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/nav_explore"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="48dp"-->
+            <!--android:layout_below="@+id/nav_add"-->
+            <!--android:background="?attr/selectableItemBackground"-->
+            <!--android:clickable="true"-->
+            <!--android:paddingEnd="8dp"-->
+            <!--android:paddingLeft="16dp"-->
+            <!--android:paddingRight="8dp"-->
+            <!--android:paddingStart="16dp">-->
+
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/nav_explore_icon"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--app:srcCompat="@drawable/ic_search_white_24px"-->
+            <!--app:tint="@color/primary_text" />-->
+
+            <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_marginLeft="24dp"-->
+            <!--android:layout_marginStart="24dp"-->
+            <!--android:layout_toEndOf="@+id/nav_explore_icon"-->
+            <!--android:layout_toRightOf="@+id/nav_explore_icon"-->
+            <!--android:gravity="center|start"-->
+            <!--android:text="@string/explore"-->
+            <!--android:textColor="@color/primary_text"-->
+            <!--android:textSize="16sp" />-->
+            <!--</RelativeLayout>-->
+
+            <RelativeLayout
+                android:id="@+id/nav_profile"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_add"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="8dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_profile_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_person_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_profile_icon"
+                    android:layout_toRightOf="@+id/nav_profile_icon"
+                    android:gravity="center|start"
+                    android:text="@string/profile"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/nav_inbox"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_profile"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_inbox_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_message_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_inbox_icon"
+                    android:layout_toRightOf="@+id/nav_inbox_icon"
+                    android:layout_toLeftOf="@+id/nav_inbox_count"
+                    android:layout_toStartOf="@+id/nav_inbox_count"
+                    android:gravity="center|start"
+                    android:text="@string/inbox"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/nav_inbox_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/color_accent"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/nav_my_offers"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_inbox"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_my_offers_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_format_list_bulleted_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_my_offers_icon"
+                    android:layout_toRightOf="@+id/nav_my_offers_icon"
+                    android:gravity="center|start"
+                    android:text="@string/my_offers"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/nav_saved"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_my_offers"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_saved_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_favorite_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_saved_icon"
+                    android:layout_toRightOf="@+id/nav_saved_icon"
+                    android:gravity="center|start"
+                    android:text="@string/saved"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/nav_settings"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_saved"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_settings_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_settings_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_settings_icon"
+                    android:layout_toRightOf="@+id/nav_settings_icon"
+                    android:gravity="center|start"
+                    android:text="@string/settings"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</RelativeLayout>
