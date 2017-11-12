@@ -2,14 +2,13 @@ package boyko.alex.easy_way.frontend.explore;
 
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Gravity;
 import android.view.View;
 
 import java.util.ArrayList;
 
-import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.backend.models.ItemBase;
 
 /**
  * Created by Sasha on 05.11.2017.
@@ -109,11 +108,13 @@ class ExplorePresenter {
         view.launchSearchActivity();
     }
 
-    void onItemClicked(Item item) {
-        //todo
+    void onItemClicked(ItemBase item) {
+        view.launchItemDetailsActivity();
     }
 
-
+    void onProfileEditClicked(){
+        view.launchEditProfileActivity();
+    }
     /**
      * On list scroll event caught
      *

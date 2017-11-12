@@ -9,18 +9,28 @@ import java.util.ArrayList;
  */
 
 @Parcel
-public class Item {
+public class ItemBase {
     public long id;
     public String title;
     public float price;
-    public String description, notes;
-    public User user;
     public Category category;
     public ItemType itemType;
     public PriceType priceType;
-    public ArrayList<String> photoUrls;
+    public Address address;
+    public String photo;
 
-    public Item() {
+    public ItemBase() {
 
+    }
+
+    public ItemBase(long id, String title, float price, Category category, ItemType itemType, PriceType priceType, Address address, String photo){
+        this.id = id;
+        this.title = title;
+        this.price = price;
+        this.category = category;
+        this.itemType = itemType;
+        this.priceType = priceType;
+        this.address = address;
+        this.photo = photo;
     }
 }

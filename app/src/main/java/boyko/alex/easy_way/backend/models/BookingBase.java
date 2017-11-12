@@ -7,15 +7,27 @@ import org.parceler.Parcel;
  */
 
 @Parcel
-public class Booking {
+public class BookingBase {
     public long id;
+    public long itemId;
     public long cratedAt, updatedAt, startedAt, endAt;
     public boolean isCanceled, isFinished, isStarted;
-    public User owner, client;
-    public ItemBase item;
 
-    public Booking(){
+    public BookingBase(){
 
+    }
+
+    public BookingBase(long id, long itemId, long createdAt, long updatedAt, long startedAt, long endAt,
+                       boolean isCanceled, boolean isFinished, boolean isStarted){
+        this.id = id;
+        this.itemId = itemId;
+        this.cratedAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.startedAt = startedAt;
+        this.endAt = endAt;
+        this.isCanceled = isCanceled;
+        this.isFinished = isFinished;
+        this.isStarted = isStarted;
     }
 
 }

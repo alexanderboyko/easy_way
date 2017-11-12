@@ -8,17 +8,18 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import boyko.alex.easy_way.ApplicationController;
-import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.backend.models.ItemBase;
 import boyko.alex.rentit.R;
 
 /**
@@ -89,44 +90,60 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
-        if (items.get(position) instanceof Item) {
+        if (items.get(position) instanceof ItemBase) {
             return ITEM_ITEM;
         }
         return ITEM_LOADING;
     }
 
-    private void bindItem(ItemHolder holder, int position) {
-        Item item = (Item) items.get(position);
+    private void bindItem(final ItemHolder holder, int position) {
+        ItemBase item = (ItemBase) items.get(position);
         holder.photo.requestLayout();
-        if (item.getPhotoUrls() != null && !item.getPhotoUrls().isEmpty()) {
+        if (item.photo != null && !item.photo.isEmpty()) {
+            holder.photo.setVisibility(View.VISIBLE);
+            holder.noPhotoLayout.setVisibility(View.GONE);
             Glide.with(ApplicationController.getInstance())
-                    .load(item.getPhotoUrls().get(0))
+                    .load(item.photo)
                     .fitCenter()
                     .crossFade()
                     .skipMemoryCache(true)
                     .dontTransform()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(holder.photo);
+        }else{
+            holder.photo.setVisibility(View.GONE);
+            holder.noPhotoLayout.setVisibility(View.VISIBLE);
         }
-        if (item.getTitle() != null) {
-            holder.title.setText(item.getTitle());
+        if (item.title != null) {
+            holder.title.setText(item.title);
         }
 
-        if (item.getPrice() != 0) {
-            String formattedPrice = item.getPrice() + item.getPriceType().getShortName();
+        if (item.price != 0) {
+            String formattedPrice = item.price + item.priceType.shortName;
             holder.price.setText(formattedPrice);
         }
-        if (item.getCategory() != null) {
-            holder.category.setText(item.getCategory().getName());
+        if (item.category != null) {
+            holder.category.setText(item.category.name);
         }
+
+        holder.background.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(onItemClickListener != null) onItemClickListener.onItemClicked(holder.getAdapterPosition());
+            }
+        });
     }
 
     private class ItemHolder extends RecyclerView.ViewHolder {
+        RelativeLayout background;
+        LinearLayout noPhotoLayout;
         AppCompatImageView photo, like;
         TextView title, price, category;
 
         ItemHolder(View itemView) {
             super(itemView);
+            background = itemView.findViewById(R.id.explore_item_background);
+            noPhotoLayout = itemView.findViewById(R.id.explore_no_photo_layout);
             photo = itemView.findViewById(R.id.explore_item_photo);
             like = itemView.findViewById(R.id.explore_item_like);
             title = itemView.findViewById(R.id.explore_item_title);

@@ -2,6 +2,7 @@ package boyko.alex.easy_way;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.v7.app.AppCompatDelegate;
 
 import boyko.alex.easy_way.libraries.FontsOverride;
 
@@ -14,6 +15,10 @@ public class ApplicationController extends Application {
     public static final boolean APP_TEST_MODE = true;           //Targetting test server or production
 
     private static ApplicationController appInstance;
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     @Override
     public void onCreate(){

@@ -8,26 +8,11 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Address {
-    private long id;
-    private String name;
+    public long id;
+    public String name, fullName;
+    public double latitude, longitude, southwestLongitude, southwestLatitude, northeastLatitude, northeastLongitude;
 
     public Address(){
 
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

@@ -2,9 +2,11 @@ package boyko.alex.easy_way.frontend.login.welcome;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -123,6 +125,12 @@ public class WelcomeViewActivity extends AppCompatActivity {
                 Log.i(LOG_TAG, exception.toString());
             }
         });
+
+        Drawable leftDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_facebook);
+        facebookLogin.setCompoundDrawablesWithIntrinsicBounds(leftDrawable, null, null, null);
+
+        Drawable leftDrawable1 = AppCompatResources.getDrawable(this, R.drawable.ic_google);
+        googleLogin.setCompoundDrawablesWithIntrinsicBounds(leftDrawable1, null, null, null);
     }
 
     private void initTermsView(){

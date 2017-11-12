@@ -9,15 +9,23 @@ import java.util.ArrayList;
  */
 
 @Parcel
-public class User {
+public class UserBase {
     public long id;
-    public String name, surname, about;
-    public byte gender;
-    public long birthday;
-    public Address address;
-    public ArrayList<String> photoUrls;
+    public String name, surname;
+    public String photo;
 
-    public User(){
+    public UserBase(){
 
+    }
+
+    public UserBase(long id, String name, String surname, String photo){
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.photo = photo;
+    }
+
+    public String getFullName(){
+        return name + " " + surname;
     }
 }

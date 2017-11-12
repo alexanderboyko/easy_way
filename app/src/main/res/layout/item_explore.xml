@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:id="@+id/explore_item_background"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
@@ -20,13 +21,24 @@
             android:background="@drawable/drawable_round_image"
             app:srcCompat="@drawable/pic_logo" />
 
+        <LinearLayout
+            android:id="@+id/explore_no_photo_layout"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:background="@color/grey"
+            android:gravity="center">
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:srcCompat="@drawable/ic_photo_camera_white_24px"/>
+        </LinearLayout>
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/explore_item_like"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_margin="8dp"
+            android:layout_margin="4dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:padding="12dp"

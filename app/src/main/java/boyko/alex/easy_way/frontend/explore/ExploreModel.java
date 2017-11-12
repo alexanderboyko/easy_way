@@ -6,7 +6,6 @@ import android.os.Looper;
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.backend.DummyGenerator;
-import boyko.alex.easy_way.backend.models.Item;
 
 /**
  * Created by Sasha on 05.11.2017.
@@ -32,7 +31,7 @@ class ExploreModel {
             @Override
             public void run() {
                 ArrayList<Object> items = new ArrayList<Object>();
-                items.addAll(DummyGenerator.getItems());
+                items.addAll(DummyGenerator.getDummyItemsBase());
                 items.add("loading");
                 loadingFinished(items);
             }
@@ -44,7 +43,7 @@ class ExploreModel {
             @Override
             public void run() {
                 ArrayList<Object> items = new ArrayList<Object>();
-                items.addAll(DummyGenerator.getItems());
+                items.addAll(DummyGenerator.getDummyItemsBase());
                 items.add("loading");
                 loadingNextFinished(items);
             }

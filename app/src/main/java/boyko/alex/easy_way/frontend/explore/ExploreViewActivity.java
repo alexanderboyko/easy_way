@@ -17,9 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 
-import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.backend.models.ItemBase;
+import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
+import boyko.alex.easy_way.frontend.profile.EditProfileViewActivity;
 import boyko.alex.easy_way.frontend.search.SearchViewActivity;
 import boyko.alex.rentit.R;
 
@@ -152,7 +156,7 @@ public class ExploreViewActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
-                ExplorePresenter.getInstance(ExploreViewActivity.this).onItemClicked((Item)adapter.getItems().get(position));
+                ExplorePresenter.getInstance(ExploreViewActivity.this).onItemClicked((ItemBase)adapter.getItems().get(position));
             }
         });
     }
@@ -223,6 +227,13 @@ public class ExploreViewActivity extends AppCompatActivity {
                 ExplorePresenter.getInstance(ExploreViewActivity.this).onDrawerStateChanged(newState);
             }
         });
+
+        findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_header_edit_icon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExplorePresenter.getInstance(ExploreViewActivity.this).onProfileEditClicked();
+            }
+        });
     }
 
     private void initShadow() {
@@ -273,9 +284,9 @@ public class ExploreViewActivity extends AppCompatActivity {
         return bottomSheetFiltersBehavior;
     }
 
-    View bottomSheet(){
-        return bottomSheetFilters;
-    }
+//    View bottomSheet(){
+//        return bottomSheetFilters;
+//    }
 
     AppCompatImageView openBottomSheetButton(){
         return openBottomSheetButton;
@@ -290,4 +301,13 @@ public class ExploreViewActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    void launchItemDetailsActivity(){
+        Intent intent = new Intent(this, ItemDetailsViewActivity.class);
+        startActivity(intent);
+    }
+    void launchEditProfileActivity(ItemBase itemBase){
+        Intent intent = new Intent(this, EditProfileViewActivity.class);
+        intent.putExtra("item", Parcels.wrap(itemBase));
+        startActivity(intent);
+    }
 }

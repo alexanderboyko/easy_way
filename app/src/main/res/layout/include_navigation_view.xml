@@ -86,7 +86,7 @@
             android:clickable="true"
             android:padding="8dp"
             app:srcCompat="@drawable/ic_edit_white_24px"
-            app:tint="@color/primary" />
+            app:tint="@color/grey" />
     </RelativeLayout>
 
     <android.support.v4.widget.NestedScrollView

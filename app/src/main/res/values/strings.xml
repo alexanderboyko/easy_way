@@ -39,4 +39,85 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="search">Search</string>
+    <string name="contact">Contact</string>
+    <string name="description">Description:</string>
+    <string name="notes">Notes:</string>
+    <string name="availability">Availability:</string>
+    <string name="reviews">Reviews:</string>
+    <string name="read_others">Read others</string>
+    <string name="see_also">See also:</string>
+    <string name="share">Share</string>
+
+    <!--Calendar resources-->
+    <!--Miesiące-->
+    <string name="fjan">January</string>
+    <string name="ffeb">February</string>
+    <string name="fmar">March</string>
+    <string name="fapr">April</string>
+    <string name="fmay">May</string>
+    <string name="fjun">June</string>
+    <string name="fjul">July</string>
+    <string name="faug">August</string>
+    <string name="fsep">September</string>
+    <string name="foct">October</string>
+    <string name="fnov">November</string>
+    <string name="fdec">December</string>
+    <string name="jan">Jan</string>
+    <string name="feb">Feb</string>
+    <string name="mar">Mar</string>
+    <string name="apr">Apr</string>
+    <string name="may">May</string>
+    <string name="jun">Jun</string>
+    <string name="jul">Jul</string>
+    <string name="aug">Aug</string>
+    <string name="sep">Sep</string>
+    <string name="oct">Oct</string>
+    <string name="nov">Nov</string>
+    <string name="dec">Dec</string>
+
+    <!--Dni tygodnia-->
+    <string name="fmon">Monday</string>
+    <string name="ftue">Tuesday</string>
+    <string name="fwed">Wednesday</string>
+    <string name="fthu">Thursday</string>
+    <string name="ffri">Friday</string>
+    <string name="fsat">Saturday</string>
+    <string name="fsun">Sunday</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="sun">Sun</string>
+
+    <!--Określenia czasu-->
+    <string name="in_one_year">in a year</string>
+    <string name="in">"in"</string>
+    <string name="years">" years"</string>
+    <string name="year_ago">year ago</string>
+    <string name="years_ago">" years ago"</string>
+    <string name="right_now">in a few seconds</string>
+    <string name="in_a_minute">" minute"</string>
+    <string name="minutes">minutes</string>
+    <string name="minutes_ago">minutes ago</string>
+    <string name="minute_ago">a minute ago</string>
+    <string name="hour_ago">an hour ago</string>
+    <string name="hours_ago">hours ago</string>
+    <string name="in_an_hour">an hour</string>
+    <string name="hours">hours</string>
+    <string name="hours_one_letter">h</string>
+    <string name="day_ago">a day ago</string>
+    <string name="days_ago">days ago</string>
+    <string name="days">days</string>
+    <string name="in_a_day_">in a day</string>
+    <string name="month_ago">month ago</string>
+    <string name="months_ago">months ago</string>
+    <string name="month_">month</string>
+    <string name="months">months</string>
+
+    <string name="all_day">All day</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
 </resources>
