@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-    package="boyko.alex.rentit">
+    package="boyko.alex.easy_way">
 
     <uses-permission android:name="android.permission.INTERNET" />
 

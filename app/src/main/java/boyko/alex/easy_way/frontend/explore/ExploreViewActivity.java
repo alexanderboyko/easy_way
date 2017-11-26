@@ -13,29 +13,38 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
-import boyko.alex.easy_way.backend.models.ItemBase;
+import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
 import boyko.alex.easy_way.frontend.profile.EditProfileViewActivity;
 import boyko.alex.easy_way.frontend.search.SearchViewActivity;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 01.11.2017.
- *
+ * <p>
  * This is Main App Activity. Welcome.
- *
  */
 
 public class ExploreViewActivity extends AppCompatActivity {
-    //private final String LOG_TAG = getClass().getSimpleName();
+    private final String LOG_TAG = getClass().getSimpleName();
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -58,6 +67,7 @@ public class ExploreViewActivity extends AppCompatActivity {
         init();
 
         ExplorePresenter.getInstance(this).startLoading();
+        testDB();
     }
 
     @Override
@@ -152,11 +162,11 @@ public class ExploreViewActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        adapter = new ItemsRecyclerAdapter();
+        adapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_GRID);
         adapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
-                ExplorePresenter.getInstance(ExploreViewActivity.this).onItemClicked((ItemBase)adapter.getItems().get(position));
+                ExplorePresenter.getInstance(ExploreViewActivity.this).onItemClicked((Item) adapter.getItems().get(position));
             }
         });
     }
@@ -276,11 +286,11 @@ public class ExploreViewActivity extends AppCompatActivity {
 //        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 //    }
 
-    View shadow(){
+    View shadow() {
         return shadow;
     }
 
-    BottomSheetBehavior bottomSheetBehavior(){
+    BottomSheetBehavior bottomSheetBehavior() {
         return bottomSheetFiltersBehavior;
     }
 
@@ -288,11 +298,11 @@ public class ExploreViewActivity extends AppCompatActivity {
 //        return bottomSheetFilters;
 //    }
 
-    AppCompatImageView openBottomSheetButton(){
+    AppCompatImageView openBottomSheetButton() {
         return openBottomSheetButton;
     }
 
-    DrawerLayout drawerLayout(){
+    DrawerLayout drawerLayout() {
         return drawerLayout;
     }
 
@@ -301,13 +311,56 @@ public class ExploreViewActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    void launchItemDetailsActivity(){
+    void launchItemDetailsActivity(Item itemBase) {
         Intent intent = new Intent(this, ItemDetailsViewActivity.class);
-        startActivity(intent);
-    }
-    void launchEditProfileActivity(ItemBase itemBase){
-        Intent intent = new Intent(this, EditProfileViewActivity.class);
         intent.putExtra("item", Parcels.wrap(itemBase));
         startActivity(intent);
+    }
+
+    void launchEditProfileActivity() {
+        Intent intent = new Intent(this, EditProfileViewActivity.class);
+        startActivity(intent);
+    }
+
+    void testDB() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        db.collection("items")
+//                .get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            for (DocumentSnapshot document : task.getResult()) {
+////                                document.getDocumentReference("category").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+////                                    @Override
+////                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+////                                        Log.d(LOG_TAG, task.getResult().getData() +"");
+////                                    }
+////                                });
+//                                Log.d(LOG_TAG, document.getId() + " => " + document.getData());
+//                            }
+//                        } else {
+//                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
+//                        }
+//                    }
+//                });
+
+        CollectionReference collectionReference = db.collection("items");
+        Query query = collectionReference
+                .whereEqualTo("address.name", "Lublin")
+                .whereLessThan("address.x", 60)
+                .whereGreaterThan("address.x", 30);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        Log.d(LOG_TAG, document.getId() + " => " + document.getData());
+                    }
+                } else {
+                    Log.w(LOG_TAG, "Error getting documents.", task.getException());
+                }
+            }
+        });
     }
 }

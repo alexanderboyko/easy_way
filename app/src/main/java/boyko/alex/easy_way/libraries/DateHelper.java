@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import boyko.alex.easy_way.ApplicationController;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 09.11.2016.
@@ -463,5 +463,38 @@ public class DateHelper {
             return DateHelper.getShortMonthName((calendar.get(Calendar.MONTH)))
                     + " " + calendar.get(Calendar.YEAR);
         }
+    }
+
+    public static long getDayInAMonth(long date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date);
+        calendar.add(Calendar.MONTH, 1);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long getDayLastMonth(long date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date);
+        calendar.add(Calendar.MONTH, -1);
+        return calendar.getTimeInMillis();
+    }
+
+    /**
+     * Using in availability calendar - determines which month has been selected: current month, previous to current month, or next to current month
+     * @param firstDateOfMonth time of first day of month
+     * @return 0 - previous month; 1 - current month; 2 - next month
+     */
+    public static int whichMonthSelectedCompareToCurrent(long firstDateOfMonth){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(firstDateOfMonth);
+
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 1;
+        calendar.add(Calendar.MONTH,-1);
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 0;
+
+        calendar.add(Calendar.MONTH,2);
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 2;
+
+        return 1;
     }
 }

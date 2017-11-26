@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="fill_vertical"
+    android:layout_marginBottom="64dp"
     android:clipToPadding="true"
-    android:paddingBottom="72dp"
+    android:paddingBottom="60dp"
     android:scrollbars="none"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -25,7 +26,7 @@
             android:layout_height="wrap_content"
             android:text="@string/default_very_long"
             android:textColor="@color/primary_text"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -104,7 +105,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/description"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -114,7 +115,7 @@
             android:layout_below="@+id/item_details_description_label"
             android:layout_marginTop="4dp"
             android:text="@string/default_very_long"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/item_details_notes_label"
@@ -124,7 +125,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/notes"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -134,7 +135,7 @@
             android:layout_below="@+id/item_details_notes_label"
             android:layout_marginTop="4dp"
             android:text="@string/default_very_long"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <View
             android:id="@+id/item_details_divider2"
@@ -152,22 +153,30 @@
             android:layout_marginTop="16dp"
             android:text="@string/availability"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
-        <View
-            android:id="@+id/item_details_availability"
+        <boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/item_details_calendar"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="240dp"
             android:layout_below="@+id/item_details_availability_label"
-            android:layout_marginTop="4dp"
-            android:background="@color/grey_light" />
+            android:layout_marginTop="8dp"
+            app:compactCalendarCurrentDayBackgroundColor="@color/primary_light"
+            app:compactCalendarCurrentDayTextColor="@color/icons"
+            app:compactCalendarCurrentSelectedDayBackgroundColor="@color/grey"
+            app:compactCalendarCurrentSelectedDayTextColor="@color/icons"
+            app:compactCalendarMultiEventIndicatorColor="@color/icons"
+            app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="false"
+            app:compactCalendarTargetHeight="250dp"
+            app:compactCalendarTextColor="@color/primary_text"
+            app:compactCalendarTextSize="12sp" />
 
         <View
             android:id="@+id/item_details_divider3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@+id/item_details_availability"
+            android:layout_below="@+id/item_details_calendar"
             android:layout_marginTop="16dp"
             android:background="@color/grey_light" />
 
@@ -179,7 +188,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/reviews"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <android.support.v7.widget.RecyclerView
@@ -199,7 +208,8 @@
             android:clickable="true"
             android:gravity="center|start"
             android:text="@string/read_others"
-            android:textColor="@color/color_accent" />
+            android:textColor="@color/color_accent"
+            android:textSize="16sp" />
 
         <View
             android:id="@+id/item_details_divider4"
@@ -217,7 +227,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/see_also"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <android.support.v7.widget.RecyclerView

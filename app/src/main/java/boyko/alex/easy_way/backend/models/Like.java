@@ -7,7 +7,8 @@ import org.parceler.Parcel;
  */
 @Parcel
 public class Like {
-    public long id, id_item, id_user;
+    public String id;
+    public long id_item, id_user;
 
     public Like() {
 

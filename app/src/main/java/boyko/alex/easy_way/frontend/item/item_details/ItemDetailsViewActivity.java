@@ -7,24 +7,38 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import boyko.alex.easy_way.ApplicationController;
-import boyko.alex.easy_way.backend.models.ItemBase;
-import boyko.alex.easy_way.backend.models.ItemExpanded;
-import boyko.alex.easy_way.backend.models.UserBase;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.backend.models.Booking;
+import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.R;
+import boyko.alex.easy_way.backend.models.Review;
+import boyko.alex.easy_way.backend.models.User;
+import boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar;
+import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
+import boyko.alex.easy_way.libraries.DateHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -37,14 +51,19 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     private AppCompatImageView photo, likeIcon;
     private AppBarLayout appBarLayout;
 
-    private TextView title, location, ownerName, description, notesLabel, notes, price, mark, reviewsReadOtherButton;
+    private TextView title, location, ownerName, description, notesLabel, notes, price, rating, reviewsReadOtherButton;
     private Button contactButton;
     private CircleImageView ownerPhoto;
     private LinearLayout noOwnerPhotoLayout, noItemPhotoLayout;
-    private RecyclerView reviewsRecycler, seeAlsoRecycler;
+    private RecyclerView reviewsRecycler, similarItemsRecycler;
+    private ItemsRecyclerAdapter similarItemsAdapter;
 
-    private ItemBase itemBase;
-    private ItemExpanded itemExpanded;
+    private AvailabilityCalendar calendarView;
+
+    private Item item;
+    private ArrayList<Booking> bookings;
+    private ArrayList<Review> reviews;
+    private ArrayList<Item> similarItems;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,9 +73,8 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
 
         init();
 
-        itemBase = Parcels.unwrap(getIntent().getParcelableExtra("item"));
-        if (itemBase != null)
-            ItemDetailsPresenter.getInstance(this).startLoadingItemExpanded(itemBase);
+        item = Parcels.unwrap(getIntent().getParcelableExtra("item"));
+        if (item != null) ItemDetailsPresenter.getInstance(this).startLoading(item);
 
     }
 
@@ -76,14 +94,12 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void setItemExpanded(ItemExpanded itemExpanded) {
-        this.itemExpanded = itemExpanded;
-    }
-
     private void init() {
         initViews();
         initToolbar();
         initAppBarLayout();
+        initSimilarItemsRecycler();
+        initCalendar();
     }
 
     private void initViews() {
@@ -93,7 +109,7 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         photo = findViewById(R.id.item_details_image);
         likeIcon = findViewById(R.id.item_details_like);
         price = findViewById(R.id.item_details_price);
-        mark = findViewById(R.id.item_details_average_mark);
+        rating = findViewById(R.id.item_details_average_mark);
         contactButton = findViewById(R.id.item_details_contact_button);
         title = findViewById(R.id.item_details_content).findViewById(R.id.item_details_title);
         location = findViewById(R.id.item_details_content).findViewById(R.id.item_details_location);
@@ -105,9 +121,10 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         notes = findViewById(R.id.item_details_content).findViewById(R.id.item_details_notes);
         reviewsRecycler = findViewById(R.id.item_details_content).findViewById(R.id.item_details_reviews_recycler);
         reviewsReadOtherButton = findViewById(R.id.item_details_content).findViewById(R.id.item_details_reviews_read_others);
-        seeAlsoRecycler = findViewById(R.id.item_details_content).findViewById(R.id.item_details_see_also_recycler);
-        noItemPhotoLayout = findViewById(R.id.item_details_content).findViewById(R.id.item_details_no_item_photo_layout);
-    }
+        similarItemsRecycler = findViewById(R.id.item_details_content).findViewById(R.id.item_details_see_also_recycler);
+        noItemPhotoLayout = findViewById(R.id.item_details_no_item_photo_layout);
+        calendarView = findViewById(R.id.item_details_content).findViewById(R.id.item_details_calendar);
+}
 
     private void initToolbar() {
         setSupportActionBar(toolbar);
@@ -135,7 +152,48 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         });
     }
 
-    private void setItemPhoto(String photoUrl) {
+    private void initSimilarItemsRecycler(){
+        similarItemsAdapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_LINEAR);
+        similarItemsAdapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(int position) {
+                //todo
+            }
+        });
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        similarItemsRecycler.setLayoutManager(layoutManager);
+        similarItemsRecycler.setAdapter(similarItemsAdapter);
+    }
+
+    private void initCalendar(){
+        calendarView.setPage(AvailabilityCalendar.PAGE_CENTER);
+        calendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+            @Override
+            public void onDayClick(Date dateClicked) {
+
+            }
+
+            @Override
+            public void onMonthScroll(Date firstDayOfNewMonth) {
+                int monthSelected = DateHelper.whichMonthSelectedCompareToCurrent(firstDayOfNewMonth.getTime());
+                if(monthSelected == 0) calendarView.setPage(AvailabilityCalendar.PAGE_LEFT);
+                else{
+                    if(monthSelected == 1) calendarView.setPage(AvailabilityCalendar.PAGE_CENTER);
+                    else calendarView.setPage(AvailabilityCalendar.PAGE_RIGHT);
+                }
+            }
+        });
+        calendarView.setLocale(TimeZone.getDefault(), Locale.ENGLISH);
+        calendarView.setUseThreeLetterAbbreviation(true);
+        calendarView.displayOtherMonthDays(false);
+        calendarView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+
+        //calendar.setMinDate(DateHelper.getDayLastMonth(Calendar.getInstance().getTimeInMillis()));
+        //calendar.setMaxDate(DateHelper.getDayInAMonth(Calendar.getInstance().getTimeInMillis()));
+    }
+
+    void setItemPhoto(String photoUrl) {
         if (photoUrl == null) {
             noItemPhotoLayout.setVisibility(View.VISIBLE);
             photo.setVisibility(View.GONE);
@@ -144,36 +202,38 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
             photo.setVisibility(View.VISIBLE);
             Glide.with(ApplicationController.getInstance())
                     .load(photoUrl)
-                    .fitCenter()
-                    .crossFade()
-                    .skipMemoryCache(true)
-                    .dontTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .apply(RequestOptions.fitCenterTransform())
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                    .apply(RequestOptions.noTransformation())
                     .into(photo);
         }
     }
 
-    void setTitle(String title){
+    void setTitle(String title) {
         this.title.setText(title);
     }
 
-    void setLocation(String location){
+    void setPrice(String price){
+        this.price.setText(price);
+    }
+
+    void setLocation(String location) {
         this.location.setText(location);
     }
 
-    void setOwner(UserBase owner){
+    void setOwner(User owner){
         if(owner != null){
             this.ownerName.setText(owner.getFullName());
-            if(owner.photo != null){
+            if(owner.photos != null && !owner.photos.isEmpty()){
                 ownerPhoto.setVisibility(View.VISIBLE);
                 noOwnerPhotoLayout.setVisibility(View.GONE);
                 Glide.with(ApplicationController.getInstance())
-                        .load(owner.photo)
-                        .fitCenter()
-                        .crossFade()
-                        .skipMemoryCache(true)
-                        .dontTransform()
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                        .load(owner.photos.get(0))
+                        .apply(RequestOptions.fitCenterTransform())
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
                         .into(ownerPhoto);
             }else{
                 ownerPhoto.setVisibility(View.GONE);
@@ -182,18 +242,45 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         }
     }
 
-    void setDescription(String description){
+    void setDescription(String description) {
         this.description.setText(description);
     }
 
-    void setNotes(String notes){
-        if(notes == null){
+    void setNotes(String notes) {
+        if (notes == null) {
             this.notesLabel.setVisibility(View.GONE);
             this.notes.setVisibility(View.GONE);
-        }else{
+        } else {
             this.notesLabel.setVisibility(View.VISIBLE);
             this.notes.setVisibility(View.VISIBLE);
             this.notes.setText(notes);
         }
+    }
+
+    void setRating(String rating){
+        this.rating.setText(rating);
+    }
+
+    void setLoading(boolean isLoading) {
+        if (isLoading) loadingLayout.setVisibility(View.VISIBLE);
+        else loadingLayout.setVisibility(View.GONE);
+    }
+
+    void setBookings(ArrayList<Booking> bookings) {
+        this.bookings = bookings;
+    }
+
+    void setReviews(ArrayList<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    void setSimilarItems(ArrayList<Item> similarItems) {
+        this.similarItems = similarItems;
+
+        ArrayList<Object> items = new ArrayList<>();
+        items.addAll(similarItems);
+
+        similarItemsAdapter.setItems(items);
+        similarItemsAdapter.notifyItemRangeInserted(0, items.size());
     }
 }

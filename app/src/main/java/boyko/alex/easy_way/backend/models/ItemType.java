@@ -8,7 +8,7 @@ import org.parceler.Parcel;
 
 @Parcel
 public class ItemType {
-    public long id;
+    public String id;
     public String name;
 
     public ItemType(){

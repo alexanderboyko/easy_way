@@ -1,14 +1,22 @@
 package boyko.alex.easy_way.frontend.explore;
 
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
-import boyko.alex.easy_way.backend.models.ItemBase;
+import boyko.alex.easy_way.backend.DummyGenerator;
+import boyko.alex.easy_way.backend.models.Item;
 
 /**
  * Created by Sasha on 05.11.2017.
@@ -105,11 +113,13 @@ class ExplorePresenter {
     }
 
     void onSearchClicked() {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        for(int i = 0; i<50;i++) db.collection("items").add(DummyGenerator.getDummyItem());
         view.launchSearchActivity();
     }
 
-    void onItemClicked(ItemBase item) {
-        view.launchItemDetailsActivity();
+    void onItemClicked(Item item) {
+        view.launchItemDetailsActivity(item);
     }
 
     void onProfileEditClicked(){

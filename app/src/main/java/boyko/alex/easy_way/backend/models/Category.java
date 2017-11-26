@@ -8,10 +8,10 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Category {
-    public long id;
+    public String id;
     public String name;
     public String iconUrl;
-    public Category parentCategory;
+    public String parentCategoryId;
 
     public Category(){
 

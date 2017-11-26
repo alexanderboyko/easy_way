@@ -8,7 +8,7 @@ import org.parceler.Parcel;
 
 @Parcel
 public class PriceType {
-    public long id;
+    public String id;
     public String name;
     public String shortName;
 

@@ -8,7 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 29.10.2017.

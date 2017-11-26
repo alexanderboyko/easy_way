@@ -30,7 +30,8 @@ import org.json.JSONObject;
 import boyko.alex.easy_way.frontend.login.sign_in.SignInViewActivity;
 import boyko.alex.easy_way.frontend.login.sign_up.step1.SignUpStep1ViewActivity;
 import boyko.alex.easy_way.frontend.login.terms.TermsViewActivity;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
+import boyko.alex.easy_way.frontend.splash.SplashViewActivity;
 
 /**
  * Created by Sasha on 02.11.2017.
@@ -105,7 +106,7 @@ public class WelcomeViewActivity extends AppCompatActivity {
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         Log.d(LOG_TAG, "" + response.getJSONObject().toString());
                         Log.d(LOG_TAG, "" + object.toString());
-
+                        launchSplashActivity();
                     }
                 });
 
@@ -166,6 +167,12 @@ public class WelcomeViewActivity extends AppCompatActivity {
 
     void launchTermsActivity(){
         Intent intent = new Intent(this, TermsViewActivity.class);
+        startActivity(intent);
+    }
+
+    void launchSplashActivity(){
+        Intent intent = new Intent(this, SplashViewActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 }

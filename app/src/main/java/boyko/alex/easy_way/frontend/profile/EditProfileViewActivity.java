@@ -14,7 +14,7 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 10.11.2017.

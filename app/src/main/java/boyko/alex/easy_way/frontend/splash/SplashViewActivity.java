@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import boyko.alex.easy_way.frontend.explore.ExploreViewActivity;
 import boyko.alex.easy_way.frontend.login.welcome.WelcomeViewActivity;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 01.11.2017.

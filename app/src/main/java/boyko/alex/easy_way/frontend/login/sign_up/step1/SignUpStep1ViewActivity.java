@@ -10,7 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import boyko.alex.easy_way.frontend.login.sign_up.step2.SignUpStep2ViewActivity;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 03.11.2017.

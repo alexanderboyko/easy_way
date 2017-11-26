@@ -1,0 +1,29 @@
+package boyko.alex.easy_way.backend.models;
+
+import org.parceler.Parcel;
+
+import java.util.ArrayList;
+
+/**
+ * Created by Sasha on 04.11.2017.
+ */
+
+@Parcel
+public class User {
+    public String id;
+    public String name, surname;
+    public String about;
+    public byte gender;
+    public long birthday;
+    public Address address;
+    public ArrayList<String> photos;
+
+
+    public User(){
+
+    }
+
+    public String getFullName(){
+        return name + " " + surname;
+    }
+}

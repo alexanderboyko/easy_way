@@ -8,8 +8,9 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Dialog {
-    public long id;
-    public UserBase user1, user2;
+    public String id;
+    public long user1Id, user2Id;
+    public String user1FullName, user2FullName, user1Photo, user2Photo;
     public Message lastMessage;
 
     public Dialog() {

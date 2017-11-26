@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "675256531962",
+    "firebase_url": "https://easy-way-185608.firebaseio.com",
+    "project_id": "easy-way-185608",
+    "storage_bucket": "easy-way-185608.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675256531962:android:6fa41bc614c3072b",
+        "android_client_info": {
+          "package_name": "boyko.alex.easy_way"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675256531962-05qg8c0o2mthtu3f2v24bfhpars08ueq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "boyko.alex.easy_way",
+            "certificate_hash": "73f7bcabecb58c62f746eaaec33ec0f287f12044"
+          }
+        },
+        {
+          "client_id": "675256531962-tqcu8eavm5ucgrdorke7h90t6aikeb8t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY9pO6176SvljJsaLDVCHmklko6CacQUE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675256531962-tqcu8eavm5ucgrdorke7h90t6aikeb8t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

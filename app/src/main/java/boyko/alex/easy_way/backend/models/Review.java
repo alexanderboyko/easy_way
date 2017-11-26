@@ -8,12 +8,11 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Review {
-    public long id;
+    public String id;
     public String text;
     public byte mark;
-    public UserBase userFrom;
-    public BookingBase booking;
-    public ItemBase item;
+    public long bookingId, itemId, userId;
+    public String userNameFull, userPhoto;
 
     public Review(){
 

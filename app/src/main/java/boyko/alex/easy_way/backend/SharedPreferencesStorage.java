@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import boyko.alex.easy_way.libraries.ObscuredSharedPreferences;
 import boyko.alex.easy_way.ApplicationController;
-import boyko.alex.rentit.R;
+import boyko.alex.easy_way.R;
 
 /**
  * Created by PNazar on 06.06.2017.

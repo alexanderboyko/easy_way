@@ -8,7 +8,7 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Address {
-    public long id;
+    public String id;
     public String name, fullName;
     public double latitude, longitude, southwestLongitude, southwestLatitude, northeastLatitude, northeastLongitude;
 
