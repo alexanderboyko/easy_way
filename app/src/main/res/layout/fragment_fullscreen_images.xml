@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.bogdwellers.pinchtozoom.view.ImageViewPager
+        android:id="@+id/fragment_fullscreen_images_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/fragment_fullscreen_images_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@color/icons"
+        android:textSize="20sp" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/fragment_fullscreen_images_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:layout_margin="8dp"
+        android:tint="@color/icons"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_arrow_back_white_24px" />
+</RelativeLayout>

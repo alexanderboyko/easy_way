@@ -7,14 +7,7 @@ import java.util.Random;
 import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.models.Address;
-import boyko.alex.easy_way.backend.models.Booking;
-import boyko.alex.easy_way.backend.models.Category;
 import boyko.alex.easy_way.backend.models.Item;
-import boyko.alex.easy_way.backend.models.ItemType;
-import boyko.alex.easy_way.backend.models.PriceType;
-import boyko.alex.easy_way.backend.models.Review;
-import boyko.alex.easy_way.backend.models.User;
-import boyko.alex.easy_way.libraries.DateHelper;
 
 /**
  * Created by Sasha on 04.11.2017.
@@ -49,9 +42,9 @@ public class DummyGenerator {
         item.price = 10.0f + (random.nextFloat()*10f);
         item.title = "Some item " + nextRandom;
         item.priceTypeId = DataMediator.getPriceTypes().get(random.nextInt(DataMediator.getPriceTypes().size())).id;
-        item.itemTypeId = DataMediator.getItemTypes().get(random.nextInt(DataMediator.getItemTypes().size())).id;
         item.categoryId = DataMediator.getCategories().get(random.nextInt(DataMediator.getCategories().size())).id;
         item.photos = getRandomPhotos();
+        item.mainPhoto = getRandomItemPhoto();
         item.address = getAddress();
         item.description = ApplicationController.getInstance().getString(R.string.default_very_long);
         item.notes = ApplicationController.getInstance().getString(R.string.default_long);

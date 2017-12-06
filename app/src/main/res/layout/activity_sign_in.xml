@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/login_password_layout"
             android:layout_marginTop="24dp"
-            android:background="@drawable/drawable_round_button"
+            android:background="@drawable/drawable_round_button_fill"
             android:text="@string/sign_in"
             android:textAllCaps="false"
             android:textColor="@color/icons"

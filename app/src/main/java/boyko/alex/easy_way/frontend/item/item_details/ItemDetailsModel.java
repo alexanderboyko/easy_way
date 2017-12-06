@@ -1,11 +1,11 @@
 package boyko.alex.easy_way.frontend.item.item_details;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -16,9 +16,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.backend.ConvertHelper;
-import boyko.alex.easy_way.backend.DummyGenerator;
+import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.models.Booking;
 import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.Review;
 
 /**
@@ -59,7 +60,9 @@ class ItemDetailsModel {
 
     private void loadBookings(Item item) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query query = db.collection("booking").whereEqualTo("itemId", item.id);
+        Query query = db.collection("booking")
+                .whereEqualTo("itemId", item.id);
+                //.whereGreaterThan("startedAt", DateHelper.getTodayTime());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -152,4 +155,47 @@ class ItemDetailsModel {
         });
     }
 
+    void addLike(final Item item){
+        final Like like = new Like();
+        like.id = null;
+        like.itemId = item.id;
+        like.userId = DataMediator.getUser().id;
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("likes")
+                .add(like)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        like.id = documentReference.getId();
+                        DataMediator.getLikes().add(like);
+                        presenter.likeAdded();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        presenter.likeGetError();
+                    }
+                });
+    }
+
+    void removeLike(final Like like){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("likes").document(like.id)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        DataMediator.removeLike(like.id);
+                        presenter.likeRemoved();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        presenter.likeGetError();
+                    }
+                });
+    }
 }

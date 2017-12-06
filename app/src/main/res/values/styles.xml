@@ -18,6 +18,17 @@
         <item name="colorControlActivated">@color/primary_text</item>
     </style>
 
+    <style name="AddItemTheme" parent="AppTheme">
+        <item name="colorControlNormal">@color/primary_text</item>
+        <item name="android:actionMenuTextColor">@color/primary_text</item>
+        <item name="colorControlActivated">@color/color_accent</item>
+    </style>
+
+    <style name="SignInUp" parent="AppTheme">
+        <item name="colorControlNormal">@color/icons</item>
+        <item name="android:actionMenuTextColor">@color/icons</item>
+        <item name="colorControlActivated">@color/icons</item>
+    </style>
 
     <style name="ExploreTheme" parent="AppTheme">
         <item name="colorControlActivated">@color/primary_text</item>
@@ -37,4 +48,10 @@
         <item name="android:colorBackground">@color/icons</item>
         <item name="android:textColor">@color/primary_text</item>
     </style>
+
+    <style name="DialogActivityStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
 </resources>

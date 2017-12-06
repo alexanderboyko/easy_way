@@ -45,18 +45,18 @@
                         app:srcCompat="@drawable/ic_photo_camera_white_24px" />
                 </LinearLayout>
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/item_details_like"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_margin="8dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:padding="12dp"
-                    app:srcCompat="@drawable/ic_favorite_border_white_24px" />
+                <!--<android.support.v7.widget.AppCompatImageView-->
+                <!--android:id="@+id/item_details_like"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_margin="8dp"-->
+                <!--android:background="?attr/selectableItemBackground"-->
+                <!--android:clickable="true"-->
+                <!--android:padding="12dp"-->
+                <!--app:srcCompat="@drawable/ic_favorite_border_white_24px" />-->
 
             </RelativeLayout>
 
@@ -65,14 +65,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                app:layout_scrollFlags="enterAlways" />
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
     <include
         android:id="@+id/item_details_content"
         layout="@layout/include_item_details_content" />
+
+    <View
+        android:id="@+id/item_details_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_70_opacity"
+        android:visibility="gone" />
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -153,4 +160,7 @@
         </LinearLayout>
     </RelativeLayout>
 
+    <include
+        android:id="@+id/item_details_bottom_sheet_bookings"
+        layout="@layout/include_bottom_sheet_bookings" />
 </android.support.design.widget.CoordinatorLayout>

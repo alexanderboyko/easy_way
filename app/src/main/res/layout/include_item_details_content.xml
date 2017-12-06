@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_details_divider1"
             android:layout_marginTop="16dp"
-            android:text="@string/description"
+            android:text="@string/description_"
             android:textColor="@color/primary_text"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -156,17 +156,66 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <RelativeLayout
+            android:id="@+id/item_details_calendar_month_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/item_details_availability_label">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/item_details_calendar_swipe_left_button"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:padding="8dp"
+                android:tint="@color/grey"
+                app:srcCompat="@drawable/ic_keyboard_arrow_left_white_24px" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/item_details_calendar_swipe_right_button"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:padding="8dp"
+                android:tint="@color/grey"
+                app:srcCompat="@drawable/ic_keyboard_arrow_right_white_24px" />
+
+            <TextView
+                android:id="@+id/item_details_calendar_month"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_toEndOf="@+id/item_details_calendar_swipe_left_button"
+                android:layout_toLeftOf="@+id/item_details_calendar_swipe_right_button"
+                android:layout_toRightOf="@+id/item_details_calendar_swipe_left_button"
+                android:layout_toStartOf="@+id/item_details_calendar_swipe_right_button"
+                android:gravity="center"
+                android:text="@string/fdec"
+                android:textColor="@color/primary_text"
+                android:textSize="18sp" />
+
+        </RelativeLayout>
+
         <boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/item_details_calendar"
             android:layout_width="match_parent"
             android:layout_height="240dp"
-            android:layout_below="@+id/item_details_availability_label"
+            android:layout_below="@+id/item_details_calendar_month_layout"
             android:layout_marginTop="8dp"
             app:compactCalendarCurrentDayBackgroundColor="@color/primary_light"
             app:compactCalendarCurrentDayTextColor="@color/icons"
             app:compactCalendarCurrentSelectedDayBackgroundColor="@color/grey"
             app:compactCalendarCurrentSelectedDayTextColor="@color/icons"
-            app:compactCalendarMultiEventIndicatorColor="@color/icons"
+            app:compactCalendarMultiEventIndicatorColor="@color/color_accent"
+            app:compactCalendarEventIndicatorStyle="no_fill_large_indicator"
+            app:compactCalendarDisplayOtherMonthDays="true"
+            app:compactCalendarOtherMonthDaysTextColor="@color/grey_light"
             app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="false"
             app:compactCalendarTargetHeight="250dp"
             app:compactCalendarTextColor="@color/primary_text"
@@ -211,11 +260,22 @@
             android:textColor="@color/color_accent"
             android:textSize="16sp" />
 
+        <TextView
+            android:id="@+id/item_details_reviews_empty_message"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_below="@+id/item_details_reviews_recycler"
+            android:layout_marginTop="4dp"
+            android:gravity="center|start"
+            android:text="@string/no_reviews_yet"
+            android:textColor="@color/primary_text"
+            android:textSize="16sp" />
+
         <View
             android:id="@+id/item_details_divider4"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@+id/item_details_reviews_read_others"
+            android:layout_below="@+id/item_details_reviews_empty_message"
             android:layout_marginTop="16dp"
             android:background="@color/grey_light" />
 
@@ -236,5 +296,16 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_details_see_also_label"
             android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/item_details_see_also_empty_message"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_below="@+id/item_details_see_also_recycler"
+            android:layout_marginTop="4dp"
+            android:gravity="center|start"
+            android:text="@string/no_similar_items"
+            android:textColor="@color/primary_text"
+            android:textSize="16sp" />
     </RelativeLayout>
 </android.support.v4.widget.NestedScrollView>

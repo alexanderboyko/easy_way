@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/explore_search"
-        android:icon="@drawable/ic_search_black_24px"
+        android:id="@+id/item_details_menu_like"
+        android:icon="@drawable/ic_favorite_border_white_24px"
         android:title="@string/share"
         app:showAsAction="ifRoom" />
 

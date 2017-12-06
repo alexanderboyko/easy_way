@@ -20,7 +20,6 @@ import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,11 +30,12 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
+import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
+import boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity;
 import boyko.alex.easy_way.frontend.profile.EditProfileViewActivity;
 import boyko.alex.easy_way.frontend.search.SearchViewActivity;
-import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 01.11.2017.
@@ -67,7 +67,7 @@ public class ExploreViewActivity extends AppCompatActivity {
         init();
 
         ExplorePresenter.getInstance(this).startLoading();
-        testDB();
+        //testDB();
     }
 
     @Override
@@ -120,12 +120,10 @@ public class ExploreViewActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.explore_drawer);
         toolbar = findViewById(R.id.explore_toolbar);
         recyclerView = findViewById(R.id.explore_recycler_view);
-        //searchEditText = findViewById(R.id.explore_search_edit_text);
         bottomSheetFilters = findViewById(R.id.explore_bottom_sheet_filters);
         bottomSheetFiltersBehavior = BottomSheetBehavior.from(bottomSheetFilters);
         shadow = findViewById(R.id.explore_shadow);
         openBottomSheetButton = bottomSheetFilters.findViewById(R.id.explore_bottom_sheet_open_icon);
-        //cleatSearchButton = findViewById(R.id.explore_clear_search);
     }
 
     private void initToolbar() {
@@ -244,6 +242,13 @@ public class ExploreViewActivity extends AppCompatActivity {
                 ExplorePresenter.getInstance(ExploreViewActivity.this).onProfileEditClicked();
             }
         });
+
+        findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_add).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchAddItemActivity();
+            }
+        });
     }
 
     private void initShadow() {
@@ -319,6 +324,11 @@ public class ExploreViewActivity extends AppCompatActivity {
 
     void launchEditProfileActivity() {
         Intent intent = new Intent(this, EditProfileViewActivity.class);
+        startActivity(intent);
+    }
+
+    void launchAddItemActivity(){
+        Intent intent = new Intent(this, AddItemViewActivity.class);
         startActivity(intent);
     }
 

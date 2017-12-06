@@ -37,11 +37,12 @@ dependencies {
 
     compile 'de.hdodenhof:circleimageview:2.2.0'
 
-    compile 'com.google.android.gms:play-services-location:11.6.0'
-    compile 'com.google.android.gms:play-services-identity:11.6.0'
-    compile 'com.google.android.gms:play-services-places:11.6.0'
-    compile 'com.google.firebase:firebase-firestore:11.6.0'
-    compile 'com.google.firebase:firebase-core:11.6.0'
+    compile 'com.google.android.gms:play-services-location:11.6.2'
+    compile 'com.google.android.gms:play-services-identity:11.6.2'
+    compile 'com.google.android.gms:play-services-places:11.6.2'
+    compile 'com.google.firebase:firebase-storage:11.6.2'
+    compile 'com.google.firebase:firebase-firestore:11.6.2'
+    compile 'com.google.firebase:firebase-core:11.6.2'
     compile 'com.google.gms:google-services:3.1.0'
 
     compile 'org.parceler:parceler-api:1.1.9'
@@ -51,6 +52,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
 
     compile 'com.github.sundeepk:compact-calendar-view:2.0.2.2'
+
+    compile 'com.github.jrvansuita:PickImage:2.1.5'
+
+    compile 'com.bogdwellers:pinchtozoom:0.1'
 
     testCompile 'junit:junit:4.12'
 }

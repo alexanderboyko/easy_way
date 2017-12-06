@@ -296,7 +296,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    app:srcCompat="@drawable/ic_favorite_white_24px"
+                    app:srcCompat="@drawable/ic_favorite_red_24px"
                     app:tint="@color/primary_text" />
 
                 <TextView

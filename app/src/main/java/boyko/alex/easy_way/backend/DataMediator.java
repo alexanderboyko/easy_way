@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import boyko.alex.easy_way.backend.models.Category;
 import boyko.alex.easy_way.backend.models.ItemType;
+import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.PriceType;
 import boyko.alex.easy_way.backend.models.User;
 
@@ -19,50 +20,42 @@ public class DataMediator {
     private static ArrayList<Category> categories;
     private static ArrayList<ItemType> itemTypes;
     private static ArrayList<PriceType> priceTypes;
-
-    private static void init() {
-        categories = new ArrayList<>();
-        itemTypes = new ArrayList<>();
-        priceTypes = new ArrayList<>();
-        user = new User();
-    }
-
-    private static void checkInit() {
-        if (categories == null) init();
-    }
+    private static ArrayList<Like> likes;
 
     public static void setUser(User user1) {
         user = user1;
     }
 
     public static void setCategories(ArrayList<Category> categories1) {
-        checkInit();
         categories = categories1;
     }
 
     public static void setItemTypes(ArrayList<ItemType> itemTypes1) {
-        checkInit();
         itemTypes = itemTypes1;
     }
 
     public static void setPriceTypes(ArrayList<PriceType> priceTypes1) {
-        checkInit();
         priceTypes = priceTypes1;
     }
 
+    public static void setLikes(ArrayList<Like> likes1) {
+        likes = likes1;
+    }
+
     public static ArrayList<Category> getCategories() {
-        checkInit();
         return categories;
     }
 
     public static ArrayList<ItemType> getItemTypes() {
-        checkInit();
         return itemTypes;
     }
 
     public static ArrayList<PriceType> getPriceTypes() {
-        checkInit();
         return priceTypes;
+    }
+
+    public static ArrayList<Like> getLikes() {
+        return likes;
     }
 
     public static User getUser() {
@@ -71,29 +64,86 @@ public class DataMediator {
 
     @Nullable
     public static Category getCategory(String id) {
-        checkInit();
-        for (Category category : categories) {
-            if (category.id.equals(id)) return category;
+        if (categories != null) {
+            for (Category category : categories) {
+                if (category.id.equals(id)) return category;
+            }
         }
         return null;
     }
 
+    public static ArrayList<Category> getChildCategories(String parentCategoryId) {
+        if(categories == null || parentCategoryId == null) return new ArrayList<>();
+        ArrayList<Category> temp = new ArrayList<>();
+        for (Category category : categories) {
+            if (category.parentCategoryId.equals(parentCategoryId)) temp.add(category);
+        }
+        return temp;
+    }
+
+    public static ArrayList<Category> getParentsCategories() {
+        if(categories == null) return new ArrayList<>();
+
+        ArrayList<Category> temp = new ArrayList<>();
+        for (Category category : categories) {
+            if (category.parentCategoryId == null || category.parentCategoryId.isEmpty()) temp.add(category);
+        }
+        return temp;
+    }
+
+
+
     @Nullable
     public static ItemType getItemType(String id) {
-        checkInit();
-        for (ItemType itemType : itemTypes) {
-            if (itemType.id.equals(id)) return itemType;
+        if (itemTypes != null) {
+            for (ItemType itemType : itemTypes) {
+                if (itemType.id.equals(id)) return itemType;
+            }
         }
         return null;
     }
 
     @Nullable
     public static PriceType getPriceType(String id) {
-        checkInit();
-        for (PriceType priceType : priceTypes) {
-            if (priceType.id.equals(id)) return priceType;
+        if (priceTypes != null) {
+            for (PriceType priceType : priceTypes) {
+                if (priceType.id.equals(id)) return priceType;
+            }
         }
         return null;
+    }
+
+    @Nullable
+    public static PriceType getPriceTypeByName(String name) {
+        if (priceTypes != null) {
+            for (PriceType priceType : priceTypes) {
+                if (priceType.name.equals(name)) return priceType;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static Like getLike(String itemId) {
+        if (likes != null) {
+            for (Like like : likes) {
+                if (like.itemId.equals(itemId)) {
+                    return like;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void removeLike(String likeId) {
+        if (likes != null) {
+            for (Like like : likes) {
+                if (like.id.equals(likeId)) {
+                    likes.remove(like);
+                    break;
+                }
+            }
+        }
     }
 
     public static void printData() {

@@ -1,12 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
 
     package="boyko.alex.easy_way">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name="boyko.alex.easy_way.ApplicationController"
         android:allowBackup="true"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -22,26 +27,37 @@
 
         <activity android:name="boyko.alex.easy_way.frontend.login.welcome.WelcomeViewActivity" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.login.sign_in.SignInViewActivity" />
+        <activity
+            android:name="boyko.alex.easy_way.frontend.login.sign_in.SignInViewActivity"
+            android:theme="@style/SignInUp" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.login.sign_up.step1.SignUpStep1ViewActivity" />
+        <activity
+            android:name="boyko.alex.easy_way.frontend.login.sign_up.step1.SignUpStep1ViewActivity"
+            android:theme="@style/SignInUp" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.login.sign_up.step2.SignUpStep2ViewActivity" />
+        <activity
+            android:name="boyko.alex.easy_way.frontend.login.sign_up.step2.SignUpStep2ViewActivity"
+            android:theme="@style/SignInUp" />
 
         <activity android:name="boyko.alex.easy_way.frontend.login.terms.TermsViewActivity" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.search.SearchViewActivity"/>
+        <activity android:name="boyko.alex.easy_way.frontend.search.SearchViewActivity" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity"/>
+        <activity
+            android:name="boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity"
+            android:theme="@style/AddItemTheme" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.profile.EditProfileViewActivity"/>
+        <activity android:name="boyko.alex.easy_way.frontend.profile.EditProfileViewActivity" />
 
         <activity android:name="boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity" />
         <activity
             android:name="boyko.alex.easy_way.frontend.explore.ExploreViewActivity"
-            android:windowSoftInputMode="adjustNothing"
-            android:theme="@style/ExploreTheme" />
+            android:theme="@style/ExploreTheme"
+            android:windowSoftInputMode="adjustNothing" />
 
+        <activity
+            android:name=".frontend.dialogs.CategorySelectFragmentView"
+            android:theme="@style/DialogActivityStyle" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -63,8 +79,20 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyD3pc8TlJGA05j9mJQPIkdU1HmNpvu6y1o"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD3pc8TlJGA05j9mJQPIkdU1HmNpvu6y1o" />
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.com.vansuita.pickimage.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/picker_provider_paths" />
+        </provider>
     </application>
 
 </manifest>

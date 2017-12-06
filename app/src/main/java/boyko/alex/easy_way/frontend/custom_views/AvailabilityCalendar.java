@@ -31,6 +31,9 @@ public class AvailabilityCalendar extends CompactCalendarView {
         this.page = page;
     }
 
+    public int getPage(){
+        return page;
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
@@ -44,12 +47,12 @@ public class AvailabilityCalendar extends CompactCalendarView {
                 if(page != PAGE_CENTER) {
                     float currentX = event.getX();
                     if(page == PAGE_LEFT){
-                        if (initialX > currentX) {
+                        if (initialX < currentX) {
                             return true;
                         }
                     }
                     if(page == PAGE_RIGHT){
-                        if (initialX < currentX) {
+                        if (initialX > currentX) {
                             return true;
                         }
                     }
@@ -60,17 +63,16 @@ public class AvailabilityCalendar extends CompactCalendarView {
                 if(page != PAGE_CENTER) {
                     float currentX = event.getX();
                     if(page == PAGE_LEFT){
-                        if (initialX > currentX) {
-                            return true;
-                        }
-                    }
-                    if(page == PAGE_RIGHT){
                         if (initialX < currentX) {
                             return true;
                         }
                     }
+                    if(page == PAGE_RIGHT){
+                        if (initialX > currentX) {
+                            return true;
+                        }
+                    }
                 }
-
                 break;
         }
         return super.onTouchEvent(event);

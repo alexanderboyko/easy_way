@@ -12,8 +12,9 @@ public class Review {
     public String text;
     public byte mark;
     public long bookingId, itemId, userId;
-    public String userNameFull, userPhoto;
+    public String userName, userPhoto;
 
+    public long createdAt;
     public Review(){
 
     }

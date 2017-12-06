@@ -1,8 +1,6 @@
 package boyko.alex.easy_way.frontend.splash;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -15,12 +13,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
-import boyko.alex.easy_way.backend.DummyGenerator;
 import boyko.alex.easy_way.backend.SharedPreferencesStorage;
 import boyko.alex.easy_way.backend.models.Category;
-import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.ItemType;
+import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.PriceType;
 
 import static boyko.alex.easy_way.backend.ConfigLoginParser.BUNDLE_KEY_TOKEN;
@@ -42,6 +40,8 @@ class SplashModel {
     private boolean categoriesLoaded = false;
     private boolean itemTypesLoaded = false;
     private boolean priceTypesLoaded = false;
+    private boolean userLoaded = false;
+    private boolean likesLoaded = false;
 
     private SplashModel(SplashPresenter instantiatingPresenter) {
         splashPresenter = instantiatingPresenter;
@@ -122,10 +122,48 @@ class SplashModel {
                         }
                     }
                 });
+
+        db.collection("user").document("PbILqY0GA6sjqIS727Tz")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DataMediator.setUser(ConvertHelper.convertToUser(task.getResult()));
+                            userLoaded = true;
+                            checkLoadingFinished();
+                        } else {
+                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+
+        db.collection("likes")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<Like> likes = new ArrayList<>();
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Like like = new Like();
+                                like.id = document.getId();
+                                like.itemId = document.getString("itemId");
+                                like.userId = document.getString("userId");
+                                likes.add(like);
+                            }
+                            DataMediator.setLikes(likes);
+                            likesLoaded = true;
+                            checkLoadingFinished();
+                        } else {
+                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
     }
 
-    private void checkLoadingFinished(){
-        if(categoriesLoaded && priceTypesLoaded && itemTypesLoaded){
+    private void checkLoadingFinished() {
+        if (categoriesLoaded && priceTypesLoaded && itemTypesLoaded && userLoaded && likesLoaded) {
             splashPresenter.loadingFinished();
         }
     }

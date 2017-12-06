@@ -24,6 +24,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.backend.DataMediator;
@@ -118,11 +119,11 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     private void bindItem(final ItemHolder holder, int position) {
         Item item = (Item) items.get(position);
         holder.photo.requestLayout();
-        if (item.photos != null && !item.photos.isEmpty()) {
+        if (item.mainPhoto != null) {
             holder.photo.setVisibility(View.VISIBLE);
             holder.noPhotoLayout.setVisibility(View.GONE);
             Glide.with(ApplicationController.getInstance())
-                    .load(item.photos.get(0))
+                    .load(item.mainPhoto)
                     .apply(RequestOptions.fitCenterTransform())
                     .apply(RequestOptions.skipMemoryCacheOf(true))
                     .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
@@ -150,8 +151,8 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         if (item.price != 0) {
+            String formattedPrice = String.format(Locale.getDefault(), "%.2f", item.price) + " zł";
             PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
-            String formattedPrice = String.valueOf(item.price);
             if(priceType != null && priceType.shortName != null) formattedPrice+=priceType.shortName;
             holder.price.setText(formattedPrice);
         }
@@ -167,6 +168,9 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                 if(onItemClickListener != null) onItemClickListener.onItemClicked(holder.getAdapterPosition());
             }
         });
+
+        if(item.isLiked) holder.like.setImageResource(R.drawable.ic_favorite_red_24px);
+        else holder.like.setImageResource(R.drawable.ic_favorite_border_white_24px);
     }
 
     private class ItemHolder extends RecyclerView.ViewHolder {

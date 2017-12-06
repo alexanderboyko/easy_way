@@ -1,26 +1,19 @@
 package boyko.alex.easy_way.frontend.explore;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
-import boyko.alex.easy_way.backend.DummyGenerator;
-import boyko.alex.easy_way.backend.models.Address;
-import boyko.alex.easy_way.backend.models.Category;
 import boyko.alex.easy_way.backend.models.Item;
 
 /**
@@ -48,7 +41,7 @@ class ExploreModel {
 
     void startLoading() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //for(int i = 0; i<3;i++) db.collection("items").add(DummyGenerator.getDummyItem());
+        //for(int i = 0; i<8;i++) db.collection("items").add(DummyGenerator.getDummyItem());
         query = db.collection("items").limit(20);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -103,12 +96,24 @@ class ExploreModel {
     }
 
     private void loadingFinished(ArrayList<Object> items) {
+        for(Object object : items){
+            if(object instanceof Item){
+                if(DataMediator.getLike(((Item) object).id) != null) {
+                    ((Item) object).isLiked = true;
+                }
+            }
+        }
         presenter.loadingFinished(items);
-        //FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //for(int i = 0; i<50;i++) db.collection("items").add(DummyGenerator.getDummyItem());
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        for(int i = 0; i<10;i++) db.collection("items").add(DummyGenerator.getDummyItem());
     }
 
     private void loadingNextFinished(ArrayList<Object> items) {
+        for(Object object : items){
+            if(object instanceof Item){
+                if(DataMediator.getLike(((Item) object).id) != null) ((Item) object).isLiked = true;
+            }
+        }
         presenter.loadingNextFinished(items);
     }
 }

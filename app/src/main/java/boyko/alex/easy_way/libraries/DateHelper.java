@@ -214,7 +214,7 @@ public class DateHelper {
     }
 
     public static String getFormattedDateWithoutTime(long date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         Date myDate = new Date(date);
         return dateFormat.format(myDate);
     }
@@ -472,10 +472,26 @@ public class DateHelper {
         return calendar.getTimeInMillis();
     }
 
-    public static long getDayLastMonth(long date){
+    public static long getDayPreviousMonth(long date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(date);
         calendar.add(Calendar.MONTH, -1);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long getFirstDayOfNextMonth(long date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date);
+        calendar.add(Calendar.MONTH, 1);
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long getFirstDayOfPreviousMonth(long date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date);
+        calendar.add(Calendar.MONTH, -1);
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1);
         return calendar.getTimeInMillis();
     }
 
@@ -488,13 +504,32 @@ public class DateHelper {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(firstDateOfMonth);
 
+        Calendar calendarToday = Calendar.getInstance();
+        calendarToday.add(Calendar.MONTH,-1);
+
         if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 1;
-        calendar.add(Calendar.MONTH,-1);
-        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 0;
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), calendarToday.getTimeInMillis())) return 0;
 
-        calendar.add(Calendar.MONTH,2);
-        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 2;
+        calendarToday.add(Calendar.MONTH,2);
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), calendarToday.getTimeInMillis())) return 2;
 
-        return 1;
+        return -1;
     }
+
+    public static boolean isDayInRange(long day, long rangeDay1, long rangeDay2){
+        if(rangeDay1 < day && rangeDay2 > day) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(rangeDay1);
+            while (true) {
+                calendar.add(Calendar.DATE, 1);
+                if (DateHelper.ifTimesFromOneDay(calendar.getTimeInMillis(), day)) {
+                    return true;
+                }
+            }
+        }else{
+            return false;
+        }
+    }
+
+
 }

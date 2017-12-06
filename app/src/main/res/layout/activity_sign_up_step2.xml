@@ -105,7 +105,7 @@
             android:layout_marginTop="12dp"
             android:layout_toEndOf="@id/sign_up_birthday"
             android:layout_toRightOf="@id/sign_up_birthday"
-            android:text="@string/sex"
+            android:text="@string/gender"
             android:textAllCaps="true"
             android:textColor="@color/icons"
             android:textSize="16sp" />
@@ -165,7 +165,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/sign_up_about"
             android:layout_marginTop="24dp"
-            android:background="@drawable/drawable_round_button"
+            android:background="@drawable/drawable_round_button_fill"
             android:text="@string/sign_up"
             android:textAllCaps="false"
             android:textColor="@color/icons"
