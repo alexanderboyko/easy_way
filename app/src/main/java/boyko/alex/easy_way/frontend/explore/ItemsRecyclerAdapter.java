@@ -10,6 +10,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -23,6 +24,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -35,10 +38,12 @@ import boyko.alex.easy_way.backend.models.PriceType;
 
 /**
  * Created by Sasha on 04.11.2017.
+ *
+ * This is the adapter for items. Can be 4 modes.
  */
 
 public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    public static final int MODE_GRID = 0, MODE_LINEAR = 1;
+    public static final int MODE_GRID = 0, MODE_LINEAR_VERTICAL = 1, MODE_LINEAR_HORIZONTAL = 2, MODE_MY_OFFERS = 3;
     private final int ITEM_ITEM = 0, ITEM_LOADING = 1;
 
     private ArrayList<Object> items;
@@ -47,6 +52,9 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface OnItemClickListener {
         void onItemClicked(int position);
+        void onLikeClicked(int position);
+        void onEditClicked(int position);
+        void onDeleteClicked(int position);
     }
 
     public ItemsRecyclerAdapter(int mode) {
@@ -56,6 +64,14 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public ArrayList<Object> getItems() {
         return items;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    void setMode(int mode) {
+        this.mode = mode;
     }
 
     public void setItems(ArrayList<Object> items) {
@@ -75,12 +91,17 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         RecyclerView.ViewHolder viewHolder;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == ITEM_ITEM) {
-            if(mode == MODE_GRID){
-                View itemView = inflater.inflate(R.layout.item_explore_grid, parent, false);
-                viewHolder = new ItemHolder(itemView);
-            }else{
-                View itemView = inflater.inflate(R.layout.item_explore_linear, parent, false);
-                viewHolder = new ItemHolder(itemView);
+            if (mode == MODE_MY_OFFERS) {
+                View itemView = inflater.inflate(R.layout.item_explore_with_actions, parent, false);
+                viewHolder = new ItemHolderWithActions(itemView);
+            } else {
+                if (mode == MODE_GRID || mode == MODE_LINEAR_VERTICAL) {
+                    View itemView = inflater.inflate(R.layout.item_explore_grid, parent, false);
+                    viewHolder = new ItemHolder(itemView);
+                } else {
+                    View itemView = inflater.inflate(R.layout.item_explore_linear, parent, false);
+                    viewHolder = new ItemHolder(itemView);
+                }
             }
         } else {
             View itemView = inflater.inflate(R.layout.item_loading, parent, false);
@@ -94,12 +115,15 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         final int itemType = getItemViewType(position);
 
         if (itemType == ITEM_ITEM) {
-            bindItem((ItemHolder) holder, position);
+            if(mode == MODE_MY_OFFERS) bindItemWithActions((ItemHolderWithActions)holder, position);
+            else bindItem((ItemHolder) holder, position);
         } else {
             ((HolderLoading) holder).progressBar.setIndeterminateTintList(ColorStateList.valueOf(ContextCompat.getColor(ApplicationController.getInstance(), R.color.color_accent)));
-            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-            layoutParams.setFullSpan(true);
-            holder.itemView.setLayoutParams(layoutParams);
+            if (mode == MODE_GRID) {
+                StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+                layoutParams.setFullSpan(true);
+                holder.itemView.setLayoutParams(layoutParams);
+            }
         }
     }
 
@@ -122,27 +146,30 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (item.mainPhoto != null) {
             holder.photo.setVisibility(View.VISIBLE);
             holder.noPhotoLayout.setVisibility(View.GONE);
-            Glide.with(ApplicationController.getInstance())
-                    .load(item.mainPhoto)
-                    .apply(RequestOptions.fitCenterTransform())
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                    .apply(RequestOptions.noTransformation())
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            holder.photo.setVisibility(View.GONE);
-                            holder.noPhotoLayout.setVisibility(View.VISIBLE);
-                            return false;
-                        }
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(item.mainPhoto))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                holder.photo.setVisibility(View.GONE);
+                                holder.noPhotoLayout.setVisibility(View.VISIBLE);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(holder.photo);
-        }else{
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(holder.photo);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else {
             holder.photo.setVisibility(View.GONE);
             holder.noPhotoLayout.setVisibility(View.VISIBLE);
         }
@@ -153,7 +180,8 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (item.price != 0) {
             String formattedPrice = String.format(Locale.getDefault(), "%.2f", item.price) + " zł";
             PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
-            if(priceType != null && priceType.shortName != null) formattedPrice+=priceType.shortName;
+            if (priceType != null && priceType.shortName != null)
+                formattedPrice += priceType.shortName;
             holder.price.setText(formattedPrice);
         }
 
@@ -165,12 +193,104 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         holder.background.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(onItemClickListener != null) onItemClickListener.onItemClicked(holder.getAdapterPosition());
+                if (onItemClickListener != null)
+                    onItemClickListener.onItemClicked(holder.getAdapterPosition());
             }
         });
 
-        if(item.isLiked) holder.like.setImageResource(R.drawable.ic_favorite_red_24px);
+        if (item.isLiked) holder.like.setImageResource(R.drawable.ic_favorite_red_24px);
         else holder.like.setImageResource(R.drawable.ic_favorite_border_white_24px);
+
+        holder.like.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClickListener.onLikeClicked(holder.getAdapterPosition());
+            }
+        });
+    }
+
+    private void bindItemWithActions(final ItemHolderWithActions holder, int position){
+        Item item = (Item) items.get(position);
+        holder.photo.requestLayout();
+        if (item.mainPhoto != null) {
+            holder.photo.setVisibility(View.VISIBLE);
+            holder.noPhotoLayout.setVisibility(View.GONE);
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(item.mainPhoto))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                holder.photo.setVisibility(View.GONE);
+                                holder.noPhotoLayout.setVisibility(View.VISIBLE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(holder.photo);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            holder.photo.setVisibility(View.GONE);
+            holder.noPhotoLayout.setVisibility(View.VISIBLE);
+        }
+        if (item.title != null) {
+            holder.title.setText(item.title);
+        }
+
+        if (item.price != 0) {
+            String formattedPrice = String.format(Locale.getDefault(), "%.2f", item.price) + " zł";
+            PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
+            if (priceType != null && priceType.shortName != null)
+                formattedPrice += priceType.shortName;
+            holder.price.setText(formattedPrice);
+        }
+
+        Category category = DataMediator.getCategory(item.categoryId);
+        if (category != null && category.name != null) {
+            holder.category.setText(category.name);
+        }
+
+        holder.background.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (onItemClickListener != null)
+                    onItemClickListener.onItemClicked(holder.getAdapterPosition());
+            }
+        });
+
+        holder.like.setVisibility(View.GONE);
+//        if (item.isLiked) holder.like.setImageResource(R.drawable.ic_favorite_red_24px);
+//        else holder.like.setImageResource(R.drawable.ic_favorite_border_white_24px);
+//
+//        holder.like.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                onItemClickListener.onLikeClicked(holder.getAdapterPosition());
+//            }
+//        });
+
+        holder.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClickListener.onEditClicked(holder.getAdapterPosition());
+            }
+        });
+
+        holder.delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClickListener.onDeleteClicked(holder.getAdapterPosition());
+            }
+        });
     }
 
     private class ItemHolder extends RecyclerView.ViewHolder {
@@ -188,6 +308,27 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             title = itemView.findViewById(R.id.explore_item_title);
             price = itemView.findViewById(R.id.explore_item_price);
             category = itemView.findViewById(R.id.explore_item_category);
+        }
+    }
+
+    private class ItemHolderWithActions extends RecyclerView.ViewHolder {
+        RelativeLayout background;
+        LinearLayout noPhotoLayout;
+        AppCompatImageView photo, like;
+        TextView title, price, category;
+        Button edit, delete;
+
+        ItemHolderWithActions(View itemView) {
+            super(itemView);
+            background = itemView.findViewById(R.id.explore_item_background);
+            noPhotoLayout = itemView.findViewById(R.id.explore_no_photo_layout);
+            photo = itemView.findViewById(R.id.explore_item_photo);
+            like = itemView.findViewById(R.id.explore_item_like);
+            title = itemView.findViewById(R.id.explore_item_title);
+            price = itemView.findViewById(R.id.explore_item_price);
+            category = itemView.findViewById(R.id.explore_item_category);
+            edit = itemView.findViewById(R.id.item_explore_edit_button);
+            delete = itemView.findViewById(R.id.item_explore_delete_button);
         }
     }
 

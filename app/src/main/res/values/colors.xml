@@ -15,6 +15,7 @@
     <!--Other colors-->
     <color name="white_70_opacity">#B3FFFFFF</color>
     <color name="black_10_opacity">#1A000000</color>
+    <color name="black_30_opacity">#4D000000</color>
     <color name="black_60_opacity">#99000000</color>
     <color name="white_50_opacity">#80FFFFFF</color>
 

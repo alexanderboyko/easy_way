@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/explore_item_background"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:padding="8dp">
+
+    <RelativeLayout
+        android:id="@+id/explore_item_photo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="140dp">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/explore_item_photo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/drawable_round_image"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/pic_logo" />
+
+        <LinearLayout
+            android:id="@+id/explore_no_photo_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/grey"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:srcCompat="@drawable/ic_photo_camera_white_24px" />
+        </LinearLayout>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/explore_item_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="4dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_favorite_border_white_24px" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/explore_item_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explore_item_photo_layout"
+        android:layout_marginTop="4dp"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/secondary_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/explore_item_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explore_item_category"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:minLines="1"
+        android:text="@string/default_very_long"
+        android:textColor="@color/primary_text"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/explore_item_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explore_item_title"
+        android:layout_marginTop="4dp"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/color_accent"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/explore_item__actions"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_below="@+id/explore_item_price"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/item_explore_edit_button"
+            style="?attr/buttonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="@color/color_accent"
+            android:text="@string/edit"
+            android:textColor="@color/icons"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/item_explore_delete_button"
+            style="?attr/buttonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@color/color_accent"
+            android:text="@string/delete"
+            android:textColor="@color/icons"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_light"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/explore_item__actions"/>
+</RelativeLayout>

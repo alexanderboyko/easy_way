@@ -212,11 +212,26 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     }
 
     private void initSimilarItemsRecycler() {
-        similarItemsAdapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_LINEAR);
+        similarItemsAdapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_LINEAR_HORIZONTAL);
         similarItemsAdapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
                 //todo
+            }
+
+            @Override
+            public void onLikeClicked(int position) {
+
+            }
+
+            @Override
+            public void onEditClicked(int position) {
+
+            }
+
+            @Override
+            public void onDeleteClicked(int position) {
+
             }
         });
 
@@ -308,7 +323,6 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
             photo.setVisibility(View.VISIBLE);
             Glide.with(ApplicationController.getInstance())
                     .load(photoUrl)
-                    .apply(RequestOptions.fitCenterTransform())
                     .apply(RequestOptions.skipMemoryCacheOf(true))
                     .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
                     .apply(RequestOptions.noTransformation())
@@ -331,11 +345,11 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     void setOwner(User owner) {
         if (owner != null) {
             this.ownerName.setText(owner.getFullName());
-            if (owner.photos != null && !owner.photos.isEmpty()) {
+            if (owner.photo != null && !owner.photo.isEmpty()) {
                 ownerPhoto.setVisibility(View.VISIBLE);
                 noOwnerPhotoLayout.setVisibility(View.GONE);
                 Glide.with(ApplicationController.getInstance())
-                        .load(owner.photos.get(0))
+                        .load(owner.photo)
                         .apply(RequestOptions.fitCenterTransform())
                         .apply(RequestOptions.skipMemoryCacheOf(true))
                         .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))

@@ -47,7 +47,7 @@
             android:name="boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity"
             android:theme="@style/AddItemTheme" />
 
-        <activity android:name="boyko.alex.easy_way.frontend.profile.EditProfileViewActivity" />
+        <activity android:name="boyko.alex.easy_way.frontend.profile.edit.EditProfileViewActivity" />
 
         <activity android:name="boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity" />
         <activity
@@ -58,6 +58,32 @@
         <activity
             android:name=".frontend.dialogs.CategorySelectFragmentView"
             android:theme="@style/DialogActivityStyle" />
+
+        <activity android:name=".frontend.settings.SettingsActivityView" />
+        <activity android:name=".frontend.profile.details.ProfileViewActivity" />
+        <activity android:name=".frontend.liked_items.LikedItemsViewActivity"/>
+        <activity android:name=".frontend.my_offers.MyOffersViewActivity"/>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD3pc8TlJGA05j9mJQPIkdU1HmNpvu6y1o" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.com.vansuita.pickimage.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/picker_provider_paths" />
+        </provider>
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"
+            tools:replace="android:value" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -75,24 +101,6 @@
             </intent-filter>
         </activity>
 
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD3pc8TlJGA05j9mJQPIkdU1HmNpvu6y1o" />
-
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}.com.vansuita.pickimage.provider"
-            android:exported="false"
-            android:grantUriPermissions="true"
-            tools:replace="android:authorities">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/picker_provider_paths" />
-        </provider>
     </application>
 
 </manifest>

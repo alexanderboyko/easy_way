@@ -17,6 +17,7 @@ public class Item {
     public Address address;
     public ArrayList<String> photos;
     public String mainPhoto;
+    public long createdAt;
 
     public boolean isLiked = false;
 

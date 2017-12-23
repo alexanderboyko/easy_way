@@ -58,10 +58,10 @@ public class DummyGenerator {
 //        ItemExpanded itemExtended = new ItemExpanded(itemBase);
 //        itemExtended.description = "Some stuff to share";
 //        itemExtended.notes = "Some notes here";
-//        ArrayList<String> photos = new ArrayList<>();
-//        photos.add(getRandomItemPhoto());
+//        ArrayList<String> photo = new ArrayList<>();
+//        photo.add(getRandomItemPhoto());
 //        itemExtended.user = getDummyUserBase();
-//        itemExtended.photosUrls = photos;
+//        itemExtended.photosUrls = photo;
 //        return itemExtended;
 //    }
 //
@@ -91,7 +91,7 @@ public class DummyGenerator {
 //        userExpanded.gender = (byte) 1;
 //        userExpanded.birthday = TIME;
 //        userExpanded.address = getAddress();
-//        userExpanded.photos = getRandomPhotos();
+//        userExpanded.photo = getRandomPhotos();
 //        userExpanded.items = getDummyItemsBase();
 //        userExpanded.reviews = getDummyReviews();
 //        usersGenerated++;

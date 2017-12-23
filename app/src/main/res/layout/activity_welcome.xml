@@ -5,25 +5,16 @@
     android:background="@color/color_accent"
     android:orientation="vertical">
 
-    <!--<android.support.v7.widget.AppCompatImageView-->
-        <!--android:id="@+id/welcome_logo"-->
-        <!--android:layout_width="100dp"-->
-        <!--android:layout_height="100dp"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_marginTop="24dp"-->
-        <!--app:srcCompat="@drawable/logo_round" />-->
-
     <TextView
         android:id="@+id/login_welcome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/welcome_panel"
         android:layout_marginEnd="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:gravity="center|start|bottom"
-        android:layout_above="@+id/welcome_panel"
         android:text="@string/welcome_to_easy_way"
         android:textColor="@color/icons"
         android:textSize="28sp"
@@ -99,15 +90,36 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="24dp"
-        android:textColor="@color/icons"
-        android:textSize="16sp"
         android:gravity="center|start"
-        android:text="@string/by_tapping_one_of_below_login_options_you_accept"/>
+        android:text="@string/by_tapping_one_of_below_login_options_you_accept"
+        android:textColor="@color/icons"
+        android:textSize="16sp" />
 
     <com.facebook.login.widget.LoginButton
-        android:id="@+id/welcome_facebook_login_button"
+        android:id="@+id/welcome_facebook_sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/welcome_google_sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/welcome_logging_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="true"
+        android:background="@color/black_30_opacity" />
+
+    <ProgressBar
+        android:id="@+id/welcome_logging_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
 </RelativeLayout>

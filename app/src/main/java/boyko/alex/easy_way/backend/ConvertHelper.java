@@ -2,14 +2,23 @@ package boyko.alex.easy_way.backend;
 
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.github.sundeepk.compactcalendarview.domain.Event;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.location.places.Place;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
@@ -48,8 +57,10 @@ public class ConvertHelper {
         item.ratingAverage = document.getDouble("ratingAverage");
         item.categoryId = document.getString("categoryId");
         item.priceTypeId = document.getString("priceTypeId");
+        item.createdAt = document.getLong("createdAt");
 
         Address address = new Address();
+        address.id = document.getString("address.id");
         address.name = document.getString("address.name");
         address.fullName = document.getString("address.fullName");
         address.latitude = document.getDouble("address.latitude");
@@ -60,8 +71,10 @@ public class ConvertHelper {
         address.southwestLongitude = document.getDouble("address.southwestLongitude");
 
         item.address = address;
+        item.ownerId = document.getString("ownerId");
         item.mainPhoto = document.getString("mainPhoto");
-        if(document.getData().get("photos") != null) item.photos = ConvertHelper.stringsToArrayList(document.getData().get("photos").toString());
+        if (document.getData().get("photos") != null)
+            item.photos = ConvertHelper.stringsToArrayList(document.getData().get("photos").toString());
         return item;
     }
 
@@ -96,9 +109,10 @@ public class ConvertHelper {
     public static User convertToUser(DocumentSnapshot document) {
         User user = new User();
         user.id = document.getId();
-        user.birthday = document.getDate("birthday").getTime();
+        user.birthday = document.getLong("birthday");
 
         Address address = new Address();
+        address.id = document.getString("address.id");
         address.name = document.getString("address.name");
         address.fullName = document.getString("address.fullName");
         address.latitude = document.getDouble("address.latitude");
@@ -108,7 +122,10 @@ public class ConvertHelper {
         address.southwestLatitude = document.getDouble("address.southwestLatitude");
         address.southwestLongitude = document.getDouble("address.southwestLongitude");
 
-        user.photos = ConvertHelper.stringsToArrayList(document.getData().get("photos").toString());
+        user.address = address;
+        user.email = document.getString("email");
+        //ser.photo = ConvertHelper.stringsToArrayList(document.getData().get("photo").toString());
+        user.photo = document.getString("photo");
         user.name = document.getString("name");
         user.surname = document.getString("surname");
         user.about = document.getString("about");
@@ -180,5 +197,44 @@ public class ConvertHelper {
             address.northeastLongitude = place.getViewport().northeast.longitude;
         }
         return address;
+    }
+
+    public static User convertFacebookJSONToUser(JSONObject object) {
+        User user = new User();
+        if (object != null) {
+            try {
+                Log.i(LOG_TAG, object.toString());
+                if (object.getString("first_name") != null) {
+                    user.name = object.getString("first_name");
+                }
+                if (object.getString("last_name") != null) {
+                    user.surname = object.getString("last_name");
+                }
+                if (object.getString("gender") != null) {
+                    user.gender = object.getString("gender").equals("male") ? 1 : 0;
+                }
+                if (object.getString("birthday") != null) {
+                    try {
+                        String dateString = "30/09/2014";
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Date date = sdf.parse(dateString);
+                        user.birthday = date.getTime();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (JSONException e){
+                return user;
+            }
+        }
+        return user;
+    }
+
+    public static User convertGoogleResponseToUser(GoogleSignInAccount googleSignInAccount) {
+        User user = new User();
+        if(googleSignInAccount != null){
+            if(googleSignInAccount.getEmail() != null) user.email = googleSignInAccount.getEmail();
+        }
+        return user;
     }
 }

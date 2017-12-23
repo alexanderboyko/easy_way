@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.RequestCodes;
@@ -32,6 +33,12 @@ public class CategorySelectFragmentView extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         adapter = new CategoryRecyclerAdapter(DataMediator.getParentsCategories());
+        if(getIntent().getBooleanExtra("allCategories", false)){
+            Category category = new Category();
+            category.id = "allCategories";
+            category.name = ApplicationController.getInstance().getString(R.string.all_categories);
+            adapter.getCategories().add(0, category);
+        }
         adapter.setListener(new CategoryRecyclerAdapter.OnCategorySelectedListener() {
             @Override
             public void onCategoryClicked(int position) {

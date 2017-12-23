@@ -1,4 +1,4 @@
-package boyko.alex.easy_way.frontend.profile;
+package boyko.alex.easy_way.frontend.profile.edit;
 
 import android.content.Intent;
 import android.os.Bundle;

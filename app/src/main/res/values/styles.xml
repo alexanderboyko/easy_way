@@ -12,6 +12,7 @@
         <item name="windowActionBar">false</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="searchViewStyle">@style/SearchViewMy</item>
+        <item name="android:itemBackground">@color/icons</item>
         <item name="android:textColorHint">@color/primary_light</item>
         <item name="colorControlNormal">@color/primary_text</item>
         <item name="android:actionMenuTextColor">@color/primary_text</item>

@@ -24,4 +24,8 @@ class SignInPresenter {
     void onForgotPasswordClicked(){
 
     }
+
+    void onSignInButtonClicked(){
+
+    }
 }

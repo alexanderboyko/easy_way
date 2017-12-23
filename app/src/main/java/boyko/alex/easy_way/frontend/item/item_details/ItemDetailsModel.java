@@ -139,12 +139,11 @@ class ItemDetailsModel {
 
     private void loadOwner(Item item) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final DocumentReference owner = db.collection("user").document("PbILqY0GA6sjqIS727Tz");
+        final DocumentReference owner = db.collection("user").document(item.ownerId);
         owner.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.i(LOG_TAG, task.getResult().getData().toString());
                     presenter.setOwner(ConvertHelper.convertToUser(task.getResult()));
                     ownerLoaded = true;
                     checkIfLoaded();

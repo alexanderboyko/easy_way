@@ -3,7 +3,9 @@ package boyko.alex.easy_way.frontend.item.item_edit;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.PopupMenu;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.vansuita.pickimage.bean.PickResult;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -22,6 +26,7 @@ import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Address;
 import boyko.alex.easy_way.backend.models.Category;
+import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.PriceType;
 
 /**
@@ -31,15 +36,16 @@ import boyko.alex.easy_way.backend.models.PriceType;
  */
 
 class AddItemPresenter {
-    private final String LOG_TAG = getClass().getSimpleName();
+    //private final String LOG_TAG = getClass().getSimpleName();
 
     private AddItemViewActivity view;
     private static AddItemPresenter presenter;
 
     private boolean onMainPhotoPick = false;
+    private boolean isPhotoLoading = false;
+    private boolean isUploading = false;
 
     private int photosAdded = 0;
-    private int photosUploaded = 0;
 
     private AddItemPresenter(AddItemViewActivity view) {
         this.view = view;
@@ -52,6 +58,81 @@ class AddItemPresenter {
             presenter.view = view;
         }
         return presenter;
+    }
+
+    void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            if (view.getIntent().getParcelableExtra("item") != null) {
+                //mode edit
+                photosAdded = 0;
+                onMainPhotoPick = false;
+
+                Item item = Parcels.unwrap(view.getIntent().getParcelableExtra("item"));
+
+                AddItemModel.getInstance(this).setMode(AddItemModel.MODE_EDIT);
+                AddItemModel.getInstance(this).setItem(item);
+
+                view.setName(item.title);
+                view.setPrice(String.valueOf(item.price));
+
+                PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
+                if (priceType != null && priceType.name != null) {
+                    view.setPriceType(priceType.name);
+                }
+
+                AddItemModel.getInstance(this).loadAddressById(item.address.id);
+
+                Category category = DataMediator.getCategory(item.categoryId);
+                if (category != null && category.name != null) view.setCategory(category.name);
+
+                if (item.description != null) view.setDescription(item.description);
+                if (item.notes != null) view.setNotes(item.notes);
+
+                if (item.mainPhoto != null) {
+                    view.setMainPhoto(item.mainPhoto);
+                    photosAdded++;
+                    view.addPhoto(photosAdded + "/3");
+                    view.addPhoto("info");
+                }
+
+                if (item.photos != null && !item.photos.isEmpty()) {
+                    photosAdded += item.photos.size();
+                    view.setPhotosCountInfo(photosAdded + "/3");
+                    view.addPhotos(item.photos);
+                }
+
+                view.setButtonText(ApplicationController.getInstance().getString(R.string.save));
+            } else {
+                //mode create
+                AddItemModel.getInstance(this).initItem();
+                photosAdded = 0;
+                onMainPhotoPick = false;
+
+                PriceType priceType = DataMediator.getPriceTypes().get(0);
+
+                if (priceType != null && priceType.name != null) {
+                    AddItemModel.getInstance(this).setPriceType(DataMediator.getPriceTypes().get(0));
+                    if (priceType.name != null) view.setPriceType(priceType.name);
+                }
+
+                AddItemModel.getInstance(this).loadAddressById(DataMediator.getUser().address.id);
+            }
+        } else {
+            if (photosAdded > 0) {
+                String mainPhoto = AddItemModel.getInstance(this).getItem().mainPhoto;
+                if (mainPhoto != null) {
+                    view.setMainPhoto(mainPhoto);
+                    view.addPhoto(photosAdded + "/3");
+                    view.addPhoto("info");
+                }
+
+                ArrayList<String> listPhotos = AddItemModel.getInstance(this).getItem().photos;
+                if (listPhotos != null) view.addPhotos(listPhotos);
+            }
+            if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_EDIT){
+                view.setButtonText(ApplicationController.getInstance().getString(R.string.save));
+            }
+        }
     }
 
     void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,6 +160,22 @@ class AddItemPresenter {
         }
     }
 
+    boolean onBackPressed(){
+        if(!isPhotoLoading && !isUploading){
+            view.launchCloseConfirmationDialog();
+        }
+
+        return false;
+    }
+
+    void onFinish(){
+        if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE){
+            AddItemModel.getInstance(this).deleteAllPhotos();
+        }
+        view.setResult(RequestCodes.RESULT_CODE_CANCELED);
+        view.finish();
+    }
+
     void onPickMainPhoto() {
         onMainPhotoPick = true;
         view.launchPickPhotoDialog();
@@ -86,31 +183,17 @@ class AddItemPresenter {
 
     void onPickResult(PickResult pickResult) {
         if (pickResult.getError() == null) {
-            if (onMainPhotoPick) {
-                if (photosAdded == 0) {
-                    //add main photo (first image)
-                    photosAdded++;
-                    view.setMainPhoto(pickResult.getBitmap());
-                    view.addPhoto(photosAdded + "/3");
-                    view.addPhoto("info");
-                } else {
-                    //changing main photo
-                    view.setMainPhoto(pickResult.getBitmap());
-                }
-            } else {
-                //adding next photo
-                photosAdded++;
-                view.addPhoto(pickResult.getBitmap());
-                view.setPhotosCountInfo(photosAdded + "/3");
-            }
+            if (pickResult.getBitmap() != null) {
+                view.showProgressBar();
+                startUploadPhoto(pickResult.getBitmap());
+            } else view.showDefaultError();
         } else {
             view.showDefaultError();
         }
-        onMainPhotoPick = false;
     }
 
-    void onMainPhotoClicked(Bitmap mainPhoto, ArrayList<Object> listPhotos) {
-        view.launchFullscreenGallery(getBitmaps(mainPhoto, listPhotos), 0);
+    void onMainPhotoClicked() {
+        view.launchFullscreenGallery(AddItemModel.getInstance(this).getAllPhotos(), 0);
     }
 
     void onMainPhotoEditClicked() {
@@ -118,44 +201,100 @@ class AddItemPresenter {
         view.launchPickPhotoDialog();
     }
 
-    void onMainPhotoDeleteConfirmed(ArrayList<Object> listPhotos) {
+    void onMainPhotoDeleteConfirmed() {
         if (photosAdded > 1) {
-            if (listPhotos.get(1) instanceof Bitmap) {
-                photosAdded--;
-                view.setMainPhoto((Bitmap) listPhotos.get(1));
-                view.removePhoto(1);
+            photosAdded--;
 
-                view.setPhotosCountInfo(photosAdded + "/3");
-                if (photosAdded == 1) view.addPhoto("info");
-            }
+            //delete main photo from server
+            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+            //set next photo as main in model and view
+            AddItemModel.getInstance(this).getItem().mainPhoto = AddItemModel.getInstance(this).getItem().photos.get(0);
+            view.setMainPhoto(AddItemModel.getInstance(this).getItem().photos.get(0));
+
+            //remove 1 photo from model and view, because it's main now
+            AddItemModel.getInstance(this).getItem().photos.remove(0);
+            view.removePhoto(1);
+
+            //update photos count in view
+            view.setPhotosCountInfo(photosAdded + "/3");
+            //add info item if only main photo left
+            if (photosAdded == 1) view.addPhoto("info");
         } else {
+            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+            AddItemModel.getInstance(this).getItem().mainPhoto = null;
+            AddItemModel.getInstance(this).getItem().photos = null;
+
             view.removeMainPhoto();
             photosAdded = 0;
         }
     }
 
-    void onListPhotoClicked(Bitmap mainPhoto, ArrayList<Object> listPhotos, int position) {
-        if (listPhotos.get(position) instanceof String) {
-            if (!listPhotos.get(position).equals("info")) {
+    void onListPhotoClicked(int position) {
+        if (view.getPhotos().get(position).length() > 5) {
+            view.launchFullscreenGallery(AddItemModel.getInstance(this).getAllPhotos(), position);
+        } else {
+            if (!view.getPhotos().get(position).equals("info")) {
                 if (photosAdded < 3) {
                     view.launchPickPhotoDialog();
                 } else {
                     view.showLimitPhotosError();
                 }
             }
-        } else {
-            view.launchFullscreenGallery(getBitmaps(mainPhoto, listPhotos), position);
         }
     }
 
     void onListPhotoLongClicked(int position) {
+        //// TODO: 23.12.2017
         //view.launchFullscreenGallery(getBitmaps(mainPhoto, listPhotos), position);
     }
 
     void onListPhotoDeleteConfirmed(int position) {
+        //remove from server
+        AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().photos.get(position-1));
+        AddItemModel.getInstance(this).getItem().photos.remove(position-1);
+
         photosAdded--;
         view.removePhoto(position);
         view.setPhotosCountInfo(photosAdded + "/3");
+    }
+
+    private void startUploadPhoto(@NonNull Bitmap bitmap) {
+        isPhotoLoading = true;
+        AddItemModel.getInstance(this).uploadPhoto(bitmap);
+        view.showProgressBar();
+    }
+
+    void finishedUploadPhoto(String url) {
+        view.hideProgressBar();
+        if (url != null) {
+            if (onMainPhotoPick) {
+                if (photosAdded == 0) {
+                    //set main photo
+                    photosAdded++;
+                    AddItemModel.getInstance(this).addPhoto(url);
+                    view.setMainPhoto(url);
+                    view.addPhoto(photosAdded + "/3");
+                    view.addPhoto("info");
+                } else {
+                    //edit main photo
+                    if (AddItemModel.getInstance(this).getItem().mainPhoto != null) {
+                        AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+                    }
+                    view.setMainPhoto(url);
+                    AddItemModel.getInstance(this).getItem().mainPhoto = url;
+                }
+            } else {
+                //adding next photo
+                photosAdded++;
+                AddItemModel.getInstance(this).addPhoto(url);
+                view.addPhoto(url);
+                view.setPhotosCountInfo(photosAdded + "/3");
+            }
+        } else {
+            view.showDefaultError();
+        }
+        isPhotoLoading = false;
+        onMainPhotoPick = false;
     }
 
     void onPriceTypeClicked(View view) {
@@ -181,6 +320,7 @@ class AddItemPresenter {
 
     void onSaveClicked() {
         if (validate()) {
+            isUploading = true;
             view.showProgressBar();
 
             AddItemModel.getInstance(this).setTitle(view.getItemTitle());
@@ -189,29 +329,18 @@ class AddItemPresenter {
             AddItemModel.getInstance(this).setNotes(view.getItemNotes());
             AddItemModel.getInstance(this).setOwner(DataMediator.getUser());
 
-            if(photosAdded > 0) {
-                if (view.getMainPhoto() != null)
-                    AddItemModel.getInstance(this).uploadPhoto(view.getMainPhoto(), true);
-                if (photosAdded > 1) {
-                    ArrayList<Object> photos = view.getListPhotos();
-                    for (Object object : photos) {
-                        if (object instanceof Bitmap) {
-                            AddItemModel.getInstance(this).uploadPhoto((Bitmap) object, false);
-                        }
-                    }
-                }
-            }else{
-                AddItemModel.getInstance(this).uploadItem();
-            }
+
+            if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE) AddItemModel.getInstance(this).uploadItem();
+            else AddItemModel.getInstance(this).updateItem();
         }
     }
 
-    private void onAddressSelected(@NonNull Address address) {
+    void onAddressSelected(@NonNull Address address) {
         AddItemModel.getInstance(this).setAddress(address);
         if (address.fullName != null) view.setAddress(address.fullName);
     }
 
-    private void onAddressSelectError(Status status) {
+    void onAddressSelectError(Status status) {
         if (status != null && status.getStatusMessage() != null)
             view.showSelectAddressError(status.getStatusMessage());
         else view.showDefaultError();
@@ -222,15 +351,6 @@ class AddItemPresenter {
             AddItemModel.getInstance(this).setPriceType(priceType);
             if (priceType.name != null) view.setPriceType(priceType.name);
         }
-    }
-
-    private ArrayList<Bitmap> getBitmaps(Bitmap mainPhoto, ArrayList<Object> listPhotos) {
-        ArrayList<Bitmap> images = new ArrayList<>();
-        images.add(mainPhoto);
-        if (photosAdded > 1) {
-            for (int i = 1; i < listPhotos.size(); i++) images.add((Bitmap) listPhotos.get(i));
-        }
-        return images;
     }
 
     private boolean validate() {
@@ -252,15 +372,14 @@ class AddItemPresenter {
         return true;
     }
 
-    void photoUploaded(){
-        photosUploaded ++;
-        if(photosUploaded == photosAdded){
-            AddItemModel.getInstance(this).uploadItem();
-        }
-    }
-
-    void onItemUploaded(){
+    void onItemUploaded() {
+        isUploading = false;
         view.setResult(RequestCodes.RESULT_CODE_OK);
         view.finish();
+    }
+
+    void onItemUploadedError(){
+        view.showDefaultError();
+        isUploading = false;
     }
 }

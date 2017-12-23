@@ -1,10 +1,9 @@
 package boyko.alex.easy_way.frontend.splash;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
-import com.facebook.AccessToken;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import boyko.alex.easy_way.backend.DataMediator;
 
@@ -36,7 +35,8 @@ class SplashPresenter {
 
     //App initialisation
     void initApp() {
-        if (!splashModel.checkAccountLogin()) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
             splashView.launchWelcomeActivity();    //Due to how Android handles activity lifecycle, it has to go through the activity
         } else {
             SplashModel.getInstance(this).startLoadingData();

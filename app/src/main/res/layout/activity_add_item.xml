@@ -101,20 +101,20 @@
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/add_item_title_label"
+                android:id="@+id/add_item_name_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/add_item_photos_layout"
                 android:layout_marginTop="16dp"
-                android:text="@string/title"
+                android:text="@string/name_"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp" />
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/add_item_title"
+                android:id="@+id/add_item_name"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:layout_below="@+id/add_item_title_label"
+                android:layout_below="@+id/add_item_name_label"
                 android:layout_marginTop="4dp"
                 android:ellipsize="end"
                 android:inputType="textMultiLine"
@@ -128,7 +128,7 @@
                 android:id="@+id/add_item_price_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/add_item_title"
+                android:layout_below="@+id/add_item_name"
                 android:layout_marginTop="16dp"
                 android:text="@string/price_"
                 android:textColor="@color/primary_text"
@@ -200,7 +200,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/add_item_price_layout"
                 android:layout_marginTop="16dp"
-                android:text="@string/address"
+                android:text="@string/address_"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp" />
 
@@ -302,6 +302,7 @@
 
             <Button
                 android:id="@+id/add_offer_save"
+                style="?attr/buttonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/add_item_notes"

@@ -16,9 +16,15 @@ import android.widget.TextView;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 import com.bogdwellers.pinchtozoom.view.ImageViewPager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 
 /**
@@ -26,7 +32,7 @@ import boyko.alex.easy_way.R;
  */
 
 public class GalleryFragment extends DialogFragment {
-    private ArrayList<Bitmap> images;
+    private ArrayList images;
     private ImageViewPager viewPager;
     private GalleryViewPagerAdapter adapter;
     private AppCompatImageView backIcon;
@@ -65,7 +71,7 @@ public class GalleryFragment extends DialogFragment {
 
             @Override
             public void onPageSelected(int position) {
-                title.setText((position+1) + " of " + images.size());
+                title.setText((position + 1) + " of " + images.size());
                 selectedPosition = position;
             }
 
@@ -89,7 +95,8 @@ public class GalleryFragment extends DialogFragment {
     private class GalleryViewPagerAdapter extends PagerAdapter {
         private LayoutInflater layoutInflater;
 
-        GalleryViewPagerAdapter(){}
+        GalleryViewPagerAdapter() {
+        }
 
         @NonNull
         @Override
@@ -98,8 +105,21 @@ public class GalleryFragment extends DialogFragment {
             View view = layoutInflater.inflate(R.layout.item_fullscreen_image, container, false);
 
             AppCompatImageView imageViewPreview = view.findViewById(R.id.item_fullscreen_image_image);
-            imageViewPreview.setImageBitmap(images.get(position));
-            imageViewPreview.setOnTouchListener(new ImageMatrixTouchHandler(container.getContext()));
+            if (images.get(position) instanceof Bitmap) {
+                imageViewPreview.setImageBitmap((Bitmap) images.get(position));
+                imageViewPreview.setOnTouchListener(new ImageMatrixTouchHandler(container.getContext()));
+            } else {
+                try {
+                    Glide.with(ApplicationController.getInstance())
+                            .load(new URL((String)images.get(position)))
+                            .apply(RequestOptions.skipMemoryCacheOf(true))
+                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                            .apply(RequestOptions.noTransformation())
+                            .into(imageViewPreview);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
             container.addView(view);
 
             return view;
@@ -126,7 +146,7 @@ public class GalleryFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemPosition (Object object) {
+        public int getItemPosition(Object object) {
             return POSITION_NONE;
         }
     }

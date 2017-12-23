@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.facebook.AccessToken;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,6 +19,7 @@ import boyko.alex.easy_way.backend.models.Category;
 import boyko.alex.easy_way.backend.models.ItemType;
 import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.PriceType;
+import boyko.alex.easy_way.frontend.login.LoginHelper;
 
 import static boyko.alex.easy_way.backend.ConfigLoginParser.BUNDLE_KEY_TOKEN;
 import static boyko.alex.easy_way.backend.ConfigLoginParser.BUNDLE_KEY_USERID;
@@ -123,13 +123,16 @@ class SplashModel {
                     }
                 });
 
-        db.collection("user").document("PbILqY0GA6sjqIS727Tz")
+        db.collection("user")
+                .whereEqualTo("email", LoginHelper.getCurrentUserEmail())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            DataMediator.setUser(ConvertHelper.convertToUser(task.getResult()));
+                            if(!task.getResult().getDocuments().isEmpty()){
+                                DataMediator.setUser(ConvertHelper.convertToUser(task.getResult().getDocuments().get(0)));
+                            }
                             userLoaded = true;
                             checkLoadingFinished();
                         } else {
@@ -137,6 +140,18 @@ class SplashModel {
                         }
                     }
                 });
+//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            DataMediator.setUser(ConvertHelper.convertToUser(task.getResult()));
+//                            userLoaded = true;
+//                            checkLoadingFinished();
+//                        } else {
+//                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
+//                        }
+//                    }
+//                });
 
         db.collection("likes")
                 .get()
@@ -170,7 +185,9 @@ class SplashModel {
 
     //Check if an account is logged in, returns boolean
     boolean checkAccountLogin() {
-        return AccessToken.getCurrentAccessToken() != null;
+        return true;
+        //todo
+        //return AccessToken.getCurrentAccessToken() != null;
 
 //        Bundle credentialsBundle = SharedPreferencesStorage.getInstance().readUserCredentials();
 //        return (credentialsBundle.getString(BUNDLE_KEY_USERID) != null) && (credentialsBundle.getString(BUNDLE_KEY_TOKEN) != null);

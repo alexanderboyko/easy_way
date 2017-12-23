@@ -4,9 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.support.v7.app.AppCompatDelegate;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import boyko.alex.easy_way.libraries.FontsOverride;
 
 /**
@@ -27,7 +24,7 @@ public class ApplicationController extends Application {
     public void onCreate(){
         super.onCreate();
         appInstance = this;
-        FirebaseApp.initializeApp(this);
+        //FirebaseApp.initializeApp(this);
         FontsOverride.setDefaultFont(this, "DEFAULT", "fonts/WorkSans-Regular.ttf");
         FontsOverride.setDefaultFont(this, "MONOSPACE", "fonts/WorkSans-Regular.ttf");
         FontsOverride.setDefaultFont(this, "SERIF", "fonts/WorkSans-Regular.ttf");

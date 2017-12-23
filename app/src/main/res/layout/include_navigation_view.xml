@@ -51,8 +51,6 @@
             android:layout_above="@+id/nav_header_email"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_toLeftOf="@+id/nav_header_edit_icon"
-            android:layout_toStartOf="@+id/nav_header_edit_icon"
             android:ellipsize="end"
             android:lines="1"
             android:text="@string/default_long"
@@ -67,26 +65,12 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_toLeftOf="@+id/nav_header_edit_icon"
-            android:layout_toStartOf="@+id/nav_header_edit_icon"
             android:ellipsize="end"
             android:lines="1"
             android:text="@string/default_long"
             android:textColor="@color/secondary_text"
             android:textSize="14sp" />
 
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/nav_header_edit_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:padding="8dp"
-            app:srcCompat="@drawable/ic_edit_white_24px"
-            app:tint="@color/grey" />
     </RelativeLayout>
 
     <android.support.v4.widget.NestedScrollView

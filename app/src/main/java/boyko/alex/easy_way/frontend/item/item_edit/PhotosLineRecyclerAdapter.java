@@ -1,6 +1,5 @@
 package boyko.alex.easy_way.frontend.item.item_edit;
 
-import android.graphics.Bitmap;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,40 +7,47 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 02.12.2017.
+ *
+ * This is lsit of horizontal line photos
  */
 
-public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int ITEM_PHOTO = 0, ITEM_ADD_ANOTHER = 1, ITEM_INFO = 2;
-    private ArrayList<Object> photos;
+    private ArrayList<String> photos;
     private OnItemClickListener onItemClickListener;
 
-    public interface OnItemClickListener {
+    interface OnItemClickListener {
         void onItemClicked(int position);
+
         void onItemLongClick(int position);
+
         void onItemDeleteClicked(int position);
     }
 
-    public PhotosLineRecyclerAdapter(OnItemClickListener onItemClickListener) {
+    PhotosLineRecyclerAdapter(OnItemClickListener onItemClickListener) {
         photos = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
     }
 
-    public ArrayList<Object> getPhotos() {
+    ArrayList<String> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(ArrayList<Object> photos) {
+    void setPhotos(ArrayList<String> photos) {
         this.photos = photos;
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
     }
 
     @Override
@@ -52,11 +58,11 @@ public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             View itemView = inflater.inflate(R.layout.item_photo_line, parent, false);
             viewHolder = new PhotoHolder(itemView);
         }
-        if(viewType == ITEM_ADD_ANOTHER){
+        if (viewType == ITEM_ADD_ANOTHER) {
             View itemView = inflater.inflate(R.layout.item_photo_line_add, parent, false);
             viewHolder = new AddAnotherHolder(itemView);
         }
-        if(viewType == ITEM_INFO){
+        if (viewType == ITEM_INFO) {
             View itemView = inflater.inflate(R.layout.item_photo_line_info, parent, false);
             viewHolder = new InfoHolder(itemView);
         }
@@ -69,7 +75,16 @@ public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         final int itemType = getItemViewType(position);
 
         if (itemType == ITEM_PHOTO) {
-            ((PhotoHolder) holder).photo.setImageBitmap((Bitmap) getPhotos().get(position));
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(photos.get(position)))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .into(((PhotoHolder) holder).photo);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
             ((PhotoHolder) holder).photo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -89,15 +104,16 @@ public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                     onItemClickListener.onItemDeleteClicked(holder.getAdapterPosition());
                 }
             });
-        }
-        else if (itemType == ITEM_ADD_ANOTHER) {
-            ((AddAnotherHolder) holder).add.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemClickListener.onItemClicked(holder.getAdapterPosition());
-                }
-            });
-            ((AddAnotherHolder) holder).info.setText(photos.get(position).toString());
+        } else {
+            if (itemType == ITEM_ADD_ANOTHER) {
+                ((AddAnotherHolder) holder).add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener.onItemClicked(holder.getAdapterPosition());
+                    }
+                });
+                ((AddAnotherHolder) holder).info.setText(photos.get(position));
+            }
         }
     }
 
@@ -108,11 +124,12 @@ public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public int getItemViewType(int position) {
-        if (photos.get(position) instanceof String) {
+        if (photos.get(position).length() > 5) {
+            return ITEM_PHOTO;
+        } else {
             if (photos.get(position).equals("info")) return ITEM_INFO;
             else return ITEM_ADD_ANOTHER;
         }
-        return ITEM_PHOTO;
     }
 
     private class PhotoHolder extends RecyclerView.ViewHolder {
@@ -138,6 +155,7 @@ public class PhotosLineRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     private class InfoHolder extends RecyclerView.ViewHolder {
         TextView info;
+
         InfoHolder(View itemView) {
             super(itemView);
             info = itemView.findViewById(R.id.item_photo_line_info);
