@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_inbox_background"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:layout_marginTop="4dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/item_inbox_photo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp" />
+
+    <LinearLayout
+        android:id="@+id/item_inbox_no_photo_layout"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/drawable_oval_primary_color"
+        android:gravity="center"
+        android:visibility="visible">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="@color/icons"
+            app:srcCompat="@drawable/ic_person_white_24px" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/item_inbox_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="12dp"
+        android:layout_toLeftOf="@+id/item_inbox_data"
+        android:layout_toStartOf="@+id/item_inbox_data"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/primary_text"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/item_inbox_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_inbox_user_name"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="4dp"
+        android:layout_toLeftOf="@+id/item_inbox_data"
+        android:layout_toStartOf="@+id/item_inbox_data"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/secondary_text"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/item_inbox_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/item_inbox_user_name"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/default_medium"
+        android:textColor="@color/secondary_text"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/grey_light" />
+</RelativeLayout>

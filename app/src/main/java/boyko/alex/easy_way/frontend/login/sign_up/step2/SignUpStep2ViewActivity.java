@@ -52,7 +52,7 @@ public class SignUpStep2ViewActivity extends AppCompatActivity {
     private TextInputLayout nameInputLayout, surnameInputLayout, birthdayInputLayout, addressInputLayout;
     private Button signUp;
 
-    private long birthdayTime = DateHelper.getTodayTime();
+    private long birthdayTime = DateHelper.getCurrentTime();
     private int gender = 1;
     private Address address;
 
@@ -361,7 +361,7 @@ public class SignUpStep2ViewActivity extends AppCompatActivity {
     private void finishSignUpAndStart() {
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         if(firebaseAuth.getCurrentUser() == null) {
-            String email = getIntent().getStringExtra("email");
+            final String email = getIntent().getStringExtra("email");
             String password = getIntent().getStringExtra("password");
 
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -369,12 +369,9 @@ public class SignUpStep2ViewActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d("SIGNUP", "createUserWithEmail:success" + firebaseAuth.getCurrentUser().getEmail());
+                                LoginHelper.setCurrentUserEmail(email);
                                 launchSplashActivity();
                             } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w("SIGNUP", "createUserWithEmail:failure", task.getException());
                                 showToastError(getString(R.string.error_message));
                             }
                         }

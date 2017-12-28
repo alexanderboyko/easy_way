@@ -83,7 +83,7 @@ public class DateHelper {
         }
     }
 
-    public static long getTodayTime() {
+    public static long getCurrentTime() {
         return Calendar.getInstance().getTimeInMillis();
     }
 
@@ -194,9 +194,9 @@ public class DateHelper {
     public static String getSmartFormattedDate(long time) {
         String date = "";
 
+        Calendar calendarToday = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        Calendar calendarToday = Calendar.getInstance();
 
         date += getDayName(calendar.get(Calendar.DAY_OF_WEEK));
         date += ", " + calendar.get(Calendar.DATE) + " " + getFullMonthName(calendar.get(Calendar.MONTH));
@@ -207,16 +207,47 @@ public class DateHelper {
         return date;
     }
 
+    public static String getSmartFormattedDateWithTime(long time) {
+        String date = "";
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        Calendar calendarToday = Calendar.getInstance();
+
+        SimpleDateFormat simpleDateFormatArrivals = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        date += simpleDateFormatArrivals.format(time) + " ";
+        date += getDayName(calendar.get(Calendar.DAY_OF_WEEK));
+        date += ", " + calendar.get(Calendar.DATE) + " " + getFullMonthName(calendar.get(Calendar.MONTH));
+        if (calendar.get(Calendar.YEAR) != calendarToday.get(Calendar.YEAR)) {
+            date += " " + calendar.get(Calendar.YEAR);
+        }
+
+        return date;
+    }
+
     public static String getFormattedDateWithTime(long date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH : mm", Locale.getDefault());
-        Date myDate = new Date(date);
-        return dateFormat.format(myDate);
+        if(ifTimesFromOneYear(date, getCurrentTime())){
+            DateFormat dateFormat = new SimpleDateFormat("dd.MMM HH:mm", Locale.getDefault());
+            Date myDate = new Date(date);
+            return dateFormat.format(myDate);
+        }else{
+            DateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy HH:mm", Locale.getDefault());
+            Date myDate = new Date(date);
+            return dateFormat.format(myDate);
+        }
     }
 
     public static String getFormattedDateWithoutTime(long date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        Date myDate = new Date(date);
-        return dateFormat.format(myDate);
+        if(ifTimesFromOneYear(date, getCurrentTime())){
+            DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
+            Date myDate = new Date(date);
+            return dateFormat.format(myDate);
+        }else{
+            DateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy", Locale.getDefault());
+            Date myDate = new Date(date);
+            return dateFormat.format(myDate);
+        }
     }
 
     public static String getFormattedTime(long date) {
@@ -507,7 +538,7 @@ public class DateHelper {
         Calendar calendarToday = Calendar.getInstance();
         calendarToday.add(Calendar.MONTH,-1);
 
-        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getTodayTime())) return 1;
+        if(ifTimesFromOneMonth(calendar.getTimeInMillis(), getCurrentTime())) return 1;
         if(ifTimesFromOneMonth(calendar.getTimeInMillis(), calendarToday.getTimeInMillis())) return 0;
 
         calendarToday.add(Calendar.MONTH,2);
@@ -528,6 +559,54 @@ public class DateHelper {
             }
         }else{
             return false;
+        }
+    }
+
+    /**
+     *
+     * @param from included
+     * @param to included
+     * @return number of days between dates
+     */
+    public static int getDaysNumberInRange(long from, long to){
+        Calendar calendarFrom = Calendar.getInstance();
+        calendarFrom.setTimeInMillis(from);
+
+        Calendar calendarTo = Calendar.getInstance();
+        calendarTo.setTimeInMillis(to);
+
+        int days = 1;
+        while(true){
+            if(ifTimesFromOneDay(calendarFrom.getTimeInMillis(), calendarTo.getTimeInMillis())){
+                return days;
+            }else{
+                calendarFrom.add(Calendar.DATE, 1);
+                days++;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param from included
+     * @param to included
+     * @return number of hours between dates
+     */
+    public static int getHoursNumberInRange(long from, long to){
+        Calendar calendarFrom = Calendar.getInstance();
+        calendarFrom.setTimeInMillis(from);
+
+        Calendar calendarTo = Calendar.getInstance();
+        calendarTo.setTimeInMillis(to);
+
+        int hours = 1;
+        while(true){
+            if(calendarFrom.get(Calendar.HOUR_OF_DAY) == calendarTo.get(Calendar.HOUR_OF_DAY)){
+                return hours;
+            }else{
+                calendarFrom.add(Calendar.HOUR_OF_DAY, 1);
+                hours++;
+            }
         }
     }
 

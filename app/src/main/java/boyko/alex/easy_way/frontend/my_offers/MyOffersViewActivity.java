@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,29 +20,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 
 import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
+import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
 import boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity;
+import boyko.alex.easy_way.frontend.item.item_edit.DataFragment;
 
 /**
  * Created by Sasha on 20.12.2017.
@@ -59,7 +56,11 @@ public class MyOffersViewActivity extends AppCompatActivity {
     private LinearLayout loadingLayout;
 
     private boolean isNextItemLoading = false, allDataLoaded = false;
-    private DocumentSnapshot lastLoadedItem;
+    private static DocumentSnapshot lastLoadedItem;
+
+    private int positionSelected = -1;
+
+    private boolean needToUpdateItems = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,8 +68,26 @@ public class MyOffersViewActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
         setContentView(R.layout.activity_my_offers);
 
-        init();
-        startLoading();
+        if (savedInstanceState == null) {
+            lastLoadedItem = null;
+            init();
+            startLoading();
+        } else {
+            positionSelected = savedInstanceState.getInt("positionSelected");
+            isNextItemLoading = savedInstanceState.getBoolean("isNextItemLoading");
+            allDataLoaded = savedInstanceState.getBoolean("allDataLoaded");
+            needToUpdateItems = savedInstanceState.getBoolean("needToUpdateItems");
+
+            ArrayList<Object> items = ((DataFragment) getSupportFragmentManager().findFragmentByTag("dataFragment")).getItems();
+
+            initViews();
+            initToolbar();
+            initRecyclerView(items);
+
+            if((items.isEmpty() || isNextItemLoading) && !allDataLoaded) {
+                startLoading();
+            }
+        }
     }
 
     @Override
@@ -77,10 +96,62 @@ public class MyOffersViewActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RequestCodes.REQUEST_CODE_EDIT) {
+            if (resultCode == RequestCodes.RESULT_CODE_OK) {
+                Item item = Parcels.unwrap(data.getParcelableExtra("item"));
+                if (item != null) {
+                    adapter.getItems().set(positionSelected, item);
+                    adapter.notifyItemChanged(positionSelected);
+
+                    needToUpdateItems = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt("positionSelected", positionSelected);
+        outState.putBoolean("isNextItemLoading", isNextItemLoading);
+        outState.putBoolean("allDataLoaded", allDataLoaded);
+        outState.putBoolean("needToUpdateItems", needToUpdateItems);
+
+        if (getSupportFragmentManager().findFragmentByTag("dataFragment") != null) {
+            DataFragment dataFragment = (DataFragment) getSupportFragmentManager().findFragmentByTag("dataFragment");
+            dataFragment.setItems(adapter.getItems());
+        } else {
+            DataFragment fragment = new DataFragment();
+            fragment.setItems(adapter.getItems());
+
+            getSupportFragmentManager().beginTransaction().add(fragment, "dataFragment").commit();
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(needToUpdateItems) setResult(RequestCodes.RESULT_CODE_OK);
+        else setResult(RequestCodes.RESULT_CODE_CANCELED);
+        super.onBackPressed();
+    }
+
     private void init() {
         initViews();
         initToolbar();
-        initRecyclerView();
+        initRecyclerView(null);
     }
 
     private void initViews() {
@@ -100,8 +171,12 @@ public class MyOffersViewActivity extends AppCompatActivity {
         }
     }
 
-    private void initRecyclerView() {
+    private void initRecyclerView(ArrayList<Object> items) {
         adapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_MY_OFFERS);
+        if (items != null) {
+            adapter.setItems(items);
+            adapter.notifyDataSetChanged();
+        }
         adapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
@@ -115,6 +190,7 @@ public class MyOffersViewActivity extends AppCompatActivity {
 
             @Override
             public void onEditClicked(int position) {
+                positionSelected = position;
                 launchEditItemActivity((Item) adapter.getItems().get(position));
             }
 
@@ -233,7 +309,7 @@ public class MyOffersViewActivity extends AppCompatActivity {
                             adapter.getItems().remove(itemPosition);
                             adapter.notifyItemRemoved(itemPosition);
 
-                            if(adapter.getItemCount() == 0) showEmptyMessage();
+                            if (adapter.getItemCount() == 0) showEmptyMessage();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -249,67 +325,31 @@ public class MyOffersViewActivity extends AppCompatActivity {
         }
     }
 
-    void deleteLikes(String itemId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionReference = db.collection("likes");
-    }
-
-    /**
-     * Delete all documents in a collection. Uses an Executor to perform work on a background
-     * thread. This does *not* automatically discover and delete subcollections.
-     */
-    private Task<Void> deleteCollection(final CollectionReference collection,
-                                        final int batchSize,
-                                        Executor executor,
-                                        final String itemId) {
-
-        // Perform the delete operation on the provided Executor, which allows us to use
-        // simpler synchronous logic without blocking the main thread.
-        return Tasks.call(executor, new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                // Get the first batch of documents in the collection
-                Query query = collection.whereEqualTo("itemId", itemId).orderBy(FieldPath.documentId()).limit(batchSize);
-
-                // Get a list of deleted documents
-                List<DocumentSnapshot> deleted = deleteQueryBatch(query);
-
-                // While the deleted documents in the last batch indicate that there
-                // may still be more documents in the collection, page down to the
-                // next batch and delete again
-                while (deleted.size() >= batchSize) {
-                    // Move the query cursor to start after the last doc in the batch
-                    DocumentSnapshot last = deleted.get(deleted.size() - 1);
-                    query = collection.orderBy(FieldPath.documentId())
-                            .startAfter(last.getId())
-                            .limit(batchSize);
-
-                    deleted = deleteQueryBatch(query);
-                }
-
-                return null;
+    void deleteAllItemPhotos(int itemPosition) {
+        Item item = (Item) adapter.getItems().get(itemPosition);
+        if (item.mainPhoto != null) {
+            deletePhoto(item.mainPhoto);
+            if (item.photos != null) {
+                for (String s : item.photos) deletePhoto(s);
             }
-        });
-
-    }
-
-    /**
-     * Delete all results from a query in a single WriteBatch. Must be run on a worker thread
-     * to avoid blocking/crashing the main thread.
-     */
-    @WorkerThread
-    private List<DocumentSnapshot> deleteQueryBatch(final Query query) throws Exception {
-        QuerySnapshot querySnapshot = Tasks.await(query.get());
-
-        WriteBatch batch = query.getFirestore().batch();
-        for (DocumentSnapshot snapshot : querySnapshot) {
-            batch.delete(snapshot.getReference());
         }
-        Tasks.await(batch.commit());
-
-        return querySnapshot.getDocuments();
     }
 
+    void deletePhoto(String url) {
+        try {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference desertRef = storage.getReferenceFromUrl(url);
+
+            desertRef.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     void launchItemDetailsActivity(Item item) {
         Intent intent = new Intent(this, ItemDetailsViewActivity.class);
@@ -320,7 +360,7 @@ public class MyOffersViewActivity extends AppCompatActivity {
     void launchEditItemActivity(Item item) {
         Intent intent = new Intent(this, AddItemViewActivity.class);
         intent.putExtra("item", Parcels.wrap(item));
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
     }
 
     void launchDeleteConfirmationDialog(final int itemPosition) {
@@ -335,6 +375,7 @@ public class MyOffersViewActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         loadingLayout.setVisibility(View.VISIBLE);
                         dialog.cancel();
+                        deleteAllItemPhotos(itemPosition);
                         deleteItem(itemPosition);
                     }
                 });

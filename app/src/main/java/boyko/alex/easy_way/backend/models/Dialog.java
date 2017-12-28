@@ -9,9 +9,11 @@ import org.parceler.Parcel;
 @Parcel
 public class Dialog {
     public String id;
-    public long user1Id, user2Id;
+    public String user1Id, user2Id;
     public String user1FullName, user2FullName, user1Photo, user2Photo;
-    public Message lastMessage;
+    public String lastMessage;
+    public boolean user1HasUnreadMessage, user2HasUnreadMessage;
+    public long lastUpdate;
 
     public Dialog() {
 

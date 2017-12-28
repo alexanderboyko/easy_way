@@ -4,8 +4,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import boyko.alex.easy_way.backend.models.Category;
+import boyko.alex.easy_way.backend.models.Dialog;
 import boyko.alex.easy_way.backend.models.ItemType;
 import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.PriceType;
@@ -21,6 +24,7 @@ public class DataMediator {
     private static ArrayList<ItemType> itemTypes;
     private static ArrayList<PriceType> priceTypes;
     private static ArrayList<Like> likes;
+    private static ArrayList<Dialog> dialogs;
 
     public static void setUser(User user1) {
         user = user1;
@@ -155,4 +159,19 @@ public class DataMediator {
             Log.i("DATA", priceType.id + " " + priceType.name + " " + priceType.shortName);
     }
 
+
+    public static ArrayList<Dialog> getDialogs() {
+        return dialogs;
+    }
+
+    public static void setDialogs(ArrayList<Dialog> dialogs) {
+        Collections.sort(dialogs, new Comparator<Dialog>(){
+            public int compare(Dialog o1, Dialog o2){
+                if(o1.lastUpdate == o2.lastUpdate)
+                    return 0;
+                return o1.lastUpdate > o2.lastUpdate ? -1 : 1;
+            }
+        });
+        DataMediator.dialogs = dialogs;
+    }
 }

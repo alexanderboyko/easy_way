@@ -18,6 +18,7 @@
     <color name="black_30_opacity">#4D000000</color>
     <color name="black_60_opacity">#99000000</color>
     <color name="white_50_opacity">#80FFFFFF</color>
+    <color name="white_message_background">#f9f9f9</color>
 
     <color name="likeColor">#f70008</color>
 </resources>

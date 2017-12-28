@@ -264,10 +264,44 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/nav_saved"
+                android:id="@+id/nav_bookings"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_below="@+id/nav_my_offers"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/nav_bookings_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/ic_bookmark_white_24px"
+                    app:tint="@color/primary_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_toEndOf="@+id/nav_bookings_icon"
+                    android:layout_toRightOf="@+id/nav_bookings_icon"
+                    android:gravity="center|start"
+                    android:text="@string/bookings"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/nav_saved"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@+id/nav_bookings"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:paddingEnd="16dp"

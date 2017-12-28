@@ -328,10 +328,22 @@
         android:visibility="gone">
 
         <ProgressBar
+            android:id="@+id/add_item_progressbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/add_item_upload_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/add_item_progressbar"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp" />
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

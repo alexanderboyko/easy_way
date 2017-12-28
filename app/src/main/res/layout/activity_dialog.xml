@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/icons">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/dialog_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/icons">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/dialog_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:theme="@style/AppToolbar"
+            app:titleTextColor="@color/primary_text" />
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dialog_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/dialog_message_layout"
+        android:layout_below="@+id/dialog_app_bar" />
+
+    <RelativeLayout
+        android:id="@+id/dialog_message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white_message_background">
+
+        <EditText
+            android:id="@+id/dialog_message_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@color/white_message_background"
+            android:hint="@string/message"
+            android:inputType="textMultiLine"
+            android:paddingEnd="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_toLeftOf="@+id/dialog_send"
+            android:layout_toStartOf="@+id/dialog_send"
+            android:paddingStart="8dp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/dialog_send"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_send_white_24px"
+            app:tint="@color/color_accent" />
+    </RelativeLayout>
+
+</RelativeLayout>

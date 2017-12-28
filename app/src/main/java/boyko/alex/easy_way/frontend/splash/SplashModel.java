@@ -1,28 +1,26 @@
 package boyko.alex.easy_way.frontend.splash;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
-import boyko.alex.easy_way.backend.SharedPreferencesStorage;
 import boyko.alex.easy_way.backend.models.Category;
+import boyko.alex.easy_way.backend.models.Dialog;
 import boyko.alex.easy_way.backend.models.ItemType;
 import boyko.alex.easy_way.backend.models.Like;
 import boyko.alex.easy_way.backend.models.PriceType;
 import boyko.alex.easy_way.frontend.login.LoginHelper;
-
-import static boyko.alex.easy_way.backend.ConfigLoginParser.BUNDLE_KEY_TOKEN;
-import static boyko.alex.easy_way.backend.ConfigLoginParser.BUNDLE_KEY_USERID;
 
 /**
  * Created by PNazar on 30.05.2017.
@@ -42,6 +40,10 @@ class SplashModel {
     private boolean priceTypesLoaded = false;
     private boolean userLoaded = false;
     private boolean likesLoaded = false;
+    private boolean dialogsLoaded = false;
+
+    private boolean firstDialogLoaded = false, secondDialogLoaded = false;
+    private QuerySnapshot querySnapshot1, querySnapshot2;
 
     private SplashModel(SplashPresenter instantiatingPresenter) {
         splashPresenter = instantiatingPresenter;
@@ -130,9 +132,10 @@ class SplashModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if(!task.getResult().getDocuments().isEmpty()){
+                            if (!task.getResult().getDocuments().isEmpty()) {
                                 DataMediator.setUser(ConvertHelper.convertToUser(task.getResult().getDocuments().get(0)));
                             }
+                            loadDialogs();
                             userLoaded = true;
                             checkLoadingFinished();
                         } else {
@@ -140,18 +143,6 @@ class SplashModel {
                         }
                     }
                 });
-//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            DataMediator.setUser(ConvertHelper.convertToUser(task.getResult()));
-//                            userLoaded = true;
-//                            checkLoadingFinished();
-//                        } else {
-//                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
-//                        }
-//                    }
-//                });
 
         db.collection("likes")
                 .get()
@@ -175,30 +166,65 @@ class SplashModel {
                         }
                     }
                 });
+
+    }
+
+    private void loadDialogs() {
+        CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("dialogs");
+        Query query = collectionReference.whereEqualTo("user1Id", DataMediator.getUser().id);
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    querySnapshot1 = task.getResult();
+                    firstDialogLoaded = true;
+                    filterDialogs();
+                } else {
+                    querySnapshot1 = null;
+                    firstDialogLoaded = true;
+                }
+            }
+        });
+
+        query = collectionReference.whereEqualTo("user2Id", DataMediator.getUser().id);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    querySnapshot2 = task.getResult();
+                    secondDialogLoaded = true;
+                    filterDialogs();
+                } else {
+                    querySnapshot2 = null;
+                    secondDialogLoaded = true;
+                }
+            }
+        });
+    }
+
+    private void filterDialogs() {
+        if (firstDialogLoaded && secondDialogLoaded && querySnapshot1 != null && querySnapshot2 != null) {
+            ArrayList<Dialog> dialogs = new ArrayList<>();
+            for (DocumentSnapshot document : querySnapshot1) {
+                Dialog dialog = ConvertHelper.convertToDialog(document);
+                if (dialog.user1Id.equals(dialog.user2Id)) continue;
+                dialogs.add(dialog);
+            }
+            for (DocumentSnapshot document : querySnapshot2) {
+                dialogs.add(ConvertHelper.convertToDialog(document));
+            }
+
+            DataMediator.setDialogs(dialogs);
+            dialogsLoaded = true;
+            checkLoadingFinished();
+        }
     }
 
     private void checkLoadingFinished() {
-        if (categoriesLoaded && priceTypesLoaded && itemTypesLoaded && userLoaded && likesLoaded) {
+        if (categoriesLoaded && priceTypesLoaded && itemTypesLoaded && userLoaded && likesLoaded && dialogsLoaded) {
             splashPresenter.loadingFinished();
         }
     }
 
-    //Check if an account is logged in, returns boolean
-    boolean checkAccountLogin() {
-        return true;
-        //todo
-        //return AccessToken.getCurrentAccessToken() != null;
-
-//        Bundle credentialsBundle = SharedPreferencesStorage.getInstance().readUserCredentials();
-//        return (credentialsBundle.getString(BUNDLE_KEY_USERID) != null) && (credentialsBundle.getString(BUNDLE_KEY_TOKEN) != null);
-    }
-
-    //TODO: Add login validity check with server to facilitate token/account invalidation
-
-    void addAccountInformation(Bundle loginData) {
-        String userId = loginData.getString(BUNDLE_KEY_USERID);
-        String userToken = loginData.getString(BUNDLE_KEY_TOKEN);
-        SharedPreferencesStorage.getInstance().writeUserCredentials(userId, userToken);
-        //TODO: Consider overwriting variables with junk for increased security?
-    }
 }

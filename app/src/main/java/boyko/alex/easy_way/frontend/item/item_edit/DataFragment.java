@@ -1,6 +1,5 @@
 package boyko.alex.easy_way.frontend.item.item_edit;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -11,8 +10,7 @@ import java.util.ArrayList;
  */
 
 public class DataFragment extends Fragment {
-    private ArrayList listPhotos;
-    private Bitmap mainPhoto;
+    private ArrayList<Object> items;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,19 +18,11 @@ public class DataFragment extends Fragment {
         setRetainInstance(true);
     }
 
-    public void setListPhotos(ArrayList listPhotos) {
-        this.listPhotos = listPhotos;
+    public ArrayList<Object> getItems() {
+        return items;
     }
 
-    public ArrayList getListPhotos() {
-        return listPhotos;
-    }
-
-    public Bitmap getMainPhoto() {
-        return mainPhoto;
-    }
-
-    public void setMainPhoto(Bitmap mainPhoto) {
-        this.mainPhoto = mainPhoto;
+    public void setItems(ArrayList<Object> items) {
+        this.items = items;
     }
 }

@@ -63,6 +63,10 @@
         <activity android:name=".frontend.profile.details.ProfileViewActivity" />
         <activity android:name=".frontend.liked_items.LikedItemsViewActivity"/>
         <activity android:name=".frontend.my_offers.MyOffersViewActivity"/>
+        <activity android:name=".frontend.item.item_details.first_time_contact.FirstTimeContactActivity"/>
+        <activity android:name=".frontend.inbox.InboxViewActivity"/>
+        <activity android:name=".frontend.inbox.dialog.DialogViewActivity"/>
+        <activity android:name=".frontend.bookings.BookingsViewActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

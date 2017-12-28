@@ -9,10 +9,10 @@ import org.parceler.Parcel;
 @Parcel
 public class Message {
     public String id;
-    public long id_dialog;
+    public String id_dialog;
     public String text;
     public long sentAt;
-    public long senderId;
+    public String senderId;
 
     public Message(){
 

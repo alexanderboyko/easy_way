@@ -65,13 +65,17 @@ class AddItemPresenter {
             if (view.getIntent().getParcelableExtra("item") != null) {
                 //mode edit
                 photosAdded = 0;
+                isPhotoLoading = false;
+                isUploading = false;
                 onMainPhotoPick = false;
 
                 Item item = Parcels.unwrap(view.getIntent().getParcelableExtra("item"));
 
                 AddItemModel.getInstance(this).setMode(AddItemModel.MODE_EDIT);
                 AddItemModel.getInstance(this).setItem(item);
+                AddItemModel.getInstance(this).setItemBeforeEdit(item);
 
+                view.setToolbarTitle(ApplicationController.getInstance().getString(R.string.edit));
                 view.setName(item.title);
                 view.setPrice(String.valueOf(item.price));
 
@@ -105,7 +109,11 @@ class AddItemPresenter {
             } else {
                 //mode create
                 AddItemModel.getInstance(this).initItem();
+                AddItemModel.getInstance(this).setMode(AddItemModel.MODE_CREATE);
                 photosAdded = 0;
+
+                isPhotoLoading = false;
+                isUploading = false;
                 onMainPhotoPick = false;
 
                 PriceType priceType = DataMediator.getPriceTypes().get(0);
@@ -127,9 +135,10 @@ class AddItemPresenter {
                 }
 
                 ArrayList<String> listPhotos = AddItemModel.getInstance(this).getItem().photos;
-                if (listPhotos != null) view.addPhotos(listPhotos);
+                if (listPhotos != null && !listPhotos.isEmpty()) view.addPhotos(listPhotos);
             }
             if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_EDIT){
+                view.setToolbarTitle(ApplicationController.getInstance().getString(R.string.edit));
                 view.setButtonText(ApplicationController.getInstance().getString(R.string.save));
             }
         }
@@ -162,15 +171,29 @@ class AddItemPresenter {
 
     boolean onBackPressed(){
         if(!isPhotoLoading && !isUploading){
-            view.launchCloseConfirmationDialog();
+            if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE){
+                if(isAnyDataHasBeenInputted()) view.launchCloseConfirmationDialog(false, true);
+                else onFinish(false);
+            }else{
+                setItemDataToModel();
+                if(AddItemModel.getInstance(this).isItemChanged()){
+                    view.launchCloseConfirmationDialog(true, true);
+                }else{
+                    onFinish(false);
+                }
+            }
         }
 
         return false;
     }
 
-    void onFinish(){
+    void onFinish(boolean isDataChanged){
         if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE){
             AddItemModel.getInstance(this).deleteAllPhotos();
+        }else{
+            if(isDataChanged){
+                AddItemModel.getInstance(this).deleteAllPhotosOnCancelEdit();
+            }
         }
         view.setResult(RequestCodes.RESULT_CODE_CANCELED);
         view.finish();
@@ -184,7 +207,6 @@ class AddItemPresenter {
     void onPickResult(PickResult pickResult) {
         if (pickResult.getError() == null) {
             if (pickResult.getBitmap() != null) {
-                view.showProgressBar();
                 startUploadPhoto(pickResult.getBitmap());
             } else view.showDefaultError();
         } else {
@@ -202,11 +224,19 @@ class AddItemPresenter {
     }
 
     void onMainPhotoDeleteConfirmed() {
+        //delete main photo from server if need
+        if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE) {
+            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+        }
+        else {
+            if(!AddItemModel.getInstance(this).isBeforeEditItemHasPhoto(AddItemModel.getInstance(this).getItem().mainPhoto)){
+                AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+            }
+        }
+
         if (photosAdded > 1) {
             photosAdded--;
 
-            //delete main photo from server
-            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
             //set next photo as main in model and view
             AddItemModel.getInstance(this).getItem().mainPhoto = AddItemModel.getInstance(this).getItem().photos.get(0);
             view.setMainPhoto(AddItemModel.getInstance(this).getItem().photos.get(0));
@@ -220,7 +250,6 @@ class AddItemPresenter {
             //add info item if only main photo left
             if (photosAdded == 1) view.addPhoto("info");
         } else {
-            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
             AddItemModel.getInstance(this).getItem().mainPhoto = null;
             AddItemModel.getInstance(this).getItem().photos = null;
 
@@ -249,8 +278,15 @@ class AddItemPresenter {
     }
 
     void onListPhotoDeleteConfirmed(int position) {
-        //remove from server
-        AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().photos.get(position-1));
+        //remove from server if need
+        if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE) {
+            AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().photos.get(position-1));
+        }
+        else {
+            if(!AddItemModel.getInstance(this).isBeforeEditItemHasPhoto(AddItemModel.getInstance(this).getItem().photos.get(position-1))){
+                AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().photos.get(position-1));
+            }
+        }
         AddItemModel.getInstance(this).getItem().photos.remove(position-1);
 
         photosAdded--;
@@ -262,6 +298,7 @@ class AddItemPresenter {
         isPhotoLoading = true;
         AddItemModel.getInstance(this).uploadPhoto(bitmap);
         view.showProgressBar();
+        view.setUploadMessage(ApplicationController.getInstance().getString(R.string.uploading_photo));
     }
 
     void finishedUploadPhoto(String url) {
@@ -278,7 +315,7 @@ class AddItemPresenter {
                 } else {
                     //edit main photo
                     if (AddItemModel.getInstance(this).getItem().mainPhoto != null) {
-                        AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
+                        if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE) AddItemModel.getInstance(this).deletePhoto(AddItemModel.getInstance(this).getItem().mainPhoto);
                     }
                     view.setMainPhoto(url);
                     AddItemModel.getInstance(this).getItem().mainPhoto = url;
@@ -322,13 +359,9 @@ class AddItemPresenter {
         if (validate()) {
             isUploading = true;
             view.showProgressBar();
+            view.setUploadMessage(ApplicationController.getInstance().getString(R.string.uploading_item));
 
-            AddItemModel.getInstance(this).setTitle(view.getItemTitle());
-            AddItemModel.getInstance(this).setPrice(Double.valueOf(view.getItemPrice()));
-            AddItemModel.getInstance(this).setDescription(view.getItemDescription());
-            AddItemModel.getInstance(this).setNotes(view.getItemNotes());
-            AddItemModel.getInstance(this).setOwner(DataMediator.getUser());
-
+            setItemDataToModel();
 
             if(AddItemModel.getInstance(this).getMode() == AddItemModel.MODE_CREATE) AddItemModel.getInstance(this).uploadItem();
             else AddItemModel.getInstance(this).updateItem();
@@ -372,14 +405,33 @@ class AddItemPresenter {
         return true;
     }
 
-    void onItemUploaded() {
+    void onItemUploaded(Item item) {
         isUploading = false;
-        view.setResult(RequestCodes.RESULT_CODE_OK);
+        Intent intent = new Intent();
+        intent.putExtra("item", Parcels.wrap(item));
+        view.setResult(RequestCodes.RESULT_CODE_OK, intent);
         view.finish();
     }
 
     void onItemUploadedError(){
         view.showDefaultError();
         isUploading = false;
+    }
+
+    private void setItemDataToModel(){
+        AddItemModel.getInstance(this).setTitle(view.getItemTitle());
+        AddItemModel.getInstance(this).setPrice(Double.valueOf(view.getItemPrice()));
+        AddItemModel.getInstance(this).setDescription(view.getItemDescription());
+        AddItemModel.getInstance(this).setNotes(view.getItemNotes());
+        AddItemModel.getInstance(this).setOwner(DataMediator.getUser());
+    }
+
+    private boolean isAnyDataHasBeenInputted(){
+        return !view.getItemTitle().isEmpty()
+                || !view.getItemPrice().isEmpty()
+                || !view.getItemDescription().isEmpty()
+                || !view.getItemNotes().isEmpty()
+                || AddItemModel.getInstance(this).getItem().categoryId != null
+                || !AddItemModel.getInstance(this).getAllPhotos().isEmpty();
     }
 }

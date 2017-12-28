@@ -78,7 +78,7 @@ class ItemDetailsPresenter {
         if (item.notes != null) view.setNotes(item.notes);
         if (item.address != null && item.address.name != null) view.setLocation(item.address.name);
 
-        view.setMonthName(DateHelper.getFormattedCalendarMonthName(DateHelper.getTodayTime()));
+        view.setMonthName(DateHelper.getFormattedCalendarMonthName(DateHelper.getCurrentTime()));
 
         if(DataMediator.getLike(item.id) != null){
             view.setLikeIcon(true);
@@ -87,6 +87,10 @@ class ItemDetailsPresenter {
 
     void loadingFinished() {
         view.setLoading(false);
+    }
+
+    void onContactClicked(){
+        view.launchFirstContactActivity();
     }
 
     void onMonthChange(AvailabilityCalendar calendarView, long firstDayOfNewMonth) {

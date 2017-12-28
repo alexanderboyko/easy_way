@@ -1,5 +1,6 @@
 package boyko.alex.easy_way.frontend.item.item_details;
 
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -37,14 +38,16 @@ import java.util.TimeZone;
 
 import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
+import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Booking;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.backend.models.User;
 import boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar;
-import boyko.alex.easy_way.frontend.explore.BookingsRecyclerAdapter;
+import boyko.alex.easy_way.frontend.explore.BookingsInfoRecyclerAdapter;
 import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
 import boyko.alex.easy_way.frontend.explore.ReviewsRecyclerAdapter;
+import boyko.alex.easy_way.frontend.item.item_details.first_time_contact.FirstTimeContactActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -74,11 +77,12 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     private BottomSheetBehavior bottomSheetBehavior;
     private View bottomSheetBookings, shadow;
     private RecyclerView bottomSheetBookingsRecycler;
-    private BookingsRecyclerAdapter bottomSheetBookingsAdapter;
+    private BookingsInfoRecyclerAdapter bottomSheetBookingsAdapter;
     private TextView bottomSheetEmptyMessage, bottomSheetDate;
 
     private Item item;
     private ArrayList<Booking> bookings;
+    private User owner;
 
     private int toolbarLikeIcon = R.drawable.ic_favorite_border_white_24px;
 
@@ -300,9 +304,16 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
             }
         });
 
-        bottomSheetBookingsAdapter = new BookingsRecyclerAdapter(BookingsRecyclerAdapter.MODE_INFO);
+        bottomSheetBookingsAdapter = new BookingsInfoRecyclerAdapter(BookingsInfoRecyclerAdapter.MODE_INFO);
         bottomSheetBookingsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         bottomSheetBookingsRecycler.setAdapter(bottomSheetBookingsAdapter);
+
+        contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ItemDetailsPresenter.getInstance(ItemDetailsViewActivity.this).onContactClicked();
+            }
+        });
     }
 
     private void initShadow() {
@@ -343,6 +354,7 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     }
 
     void setOwner(User owner) {
+        this.owner = owner;
         if (owner != null) {
             this.ownerName.setText(owner.getFullName());
             if (owner.photo != null && !owner.photo.isEmpty()) {
@@ -475,5 +487,13 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         }
         toast = Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    void launchFirstContactActivity(){
+        Intent intent = new Intent(ItemDetailsViewActivity.this, FirstTimeContactActivity.class);
+        intent.putExtra("bookings", Parcels.wrap(bookings));
+        intent.putExtra("item", Parcels.wrap(item));
+        intent.putExtra("itemOwner", Parcels.wrap(owner));
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
     }
 }

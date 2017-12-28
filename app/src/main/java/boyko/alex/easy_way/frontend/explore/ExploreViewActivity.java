@@ -52,7 +52,9 @@ import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.User;
+import boyko.alex.easy_way.frontend.bookings.BookingsViewActivity;
 import boyko.alex.easy_way.frontend.dialogs.CategorySelectFragmentView;
+import boyko.alex.easy_way.frontend.inbox.InboxViewActivity;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
 import boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity;
 import boyko.alex.easy_way.frontend.liked_items.LikedItemsViewActivity;
@@ -443,6 +445,14 @@ public class ExploreViewActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_bookings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchBookingsActivity();
+                drawerLayout.closeDrawer(Gravity.START);
+            }
+        });
+
         findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_saved).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -717,11 +727,17 @@ public class ExploreViewActivity extends AppCompatActivity {
     }
 
     void launchInboxActivity(){
-        //// TODO: 17.12.2017
+        Intent intent = new Intent(this, InboxViewActivity.class);
+        startActivity(intent);
     }
 
     void launchMyOffersActivity(){
         Intent intent = new Intent(this, MyOffersViewActivity.class);
+        startActivity(intent);
+    }
+
+    void launchBookingsActivity(){
+        Intent intent = new Intent(this, BookingsViewActivity.class);
         startActivity(intent);
     }
 

@@ -19,12 +19,12 @@ import boyko.alex.easy_way.libraries.DateHelper;
  * Created by Sasha on 26.11.2017.
  */
 
-public class BookingsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class BookingsInfoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static final int MODE_INFO = 0;
     private int mode;
     private ArrayList<Booking> bookings;
 
-    public BookingsRecyclerAdapter(int mode){
+    public BookingsInfoRecyclerAdapter(int mode){
         this.mode = mode;
         bookings = new ArrayList<>();
     }

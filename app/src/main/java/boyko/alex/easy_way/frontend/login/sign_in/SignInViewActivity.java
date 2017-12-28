@@ -22,6 +22,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import boyko.alex.easy_way.R;
+import boyko.alex.easy_way.frontend.login.LoginHelper;
 import boyko.alex.easy_way.frontend.splash.SplashViewActivity;
 
 /**
@@ -169,6 +170,7 @@ public class SignInViewActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            LoginHelper.setCurrentUserEmail(email.getText().toString());
                             launchSplashActivity();
                         } else {
                             Toast.makeText(SignInViewActivity.this, getString(R.string.wrong_email_or_password), Toast.LENGTH_SHORT).show();

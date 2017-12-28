@@ -24,6 +24,7 @@ import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.models.Address;
 import boyko.alex.easy_way.backend.models.Booking;
+import boyko.alex.easy_way.backend.models.Dialog;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.backend.models.User;
@@ -46,36 +47,42 @@ public class ConvertHelper {
         return null;
     }
 
-    public static Item convertToItem(DocumentSnapshot document) {
-        Item item = new Item();
-        item.id = document.getId();
-        item.title = document.getString("title");
-        item.description = document.getString("description");
-        item.notes = document.getString("notes");
-        item.price = document.getDouble("price");
-        item.ratingSum = document.getDouble("ratingSum");
-        item.ratingAverage = document.getDouble("ratingAverage");
-        item.categoryId = document.getString("categoryId");
-        item.priceTypeId = document.getString("priceTypeId");
-        item.createdAt = document.getLong("createdAt");
+    public static Item convertToItem(DocumentSnapshot document){
+        try {
 
-        Address address = new Address();
-        address.id = document.getString("address.id");
-        address.name = document.getString("address.name");
-        address.fullName = document.getString("address.fullName");
-        address.latitude = document.getDouble("address.latitude");
-        address.longitude = document.getDouble("address.longitude");
-        address.northeastLatitude = document.getDouble("address.northeastLatitude");
-        address.northeastLongitude = document.getDouble("address.northeastLongitude");
-        address.southwestLatitude = document.getDouble("address.southwestLatitude");
-        address.southwestLongitude = document.getDouble("address.southwestLongitude");
 
-        item.address = address;
-        item.ownerId = document.getString("ownerId");
-        item.mainPhoto = document.getString("mainPhoto");
-        if (document.getData().get("photos") != null)
-            item.photos = ConvertHelper.stringsToArrayList(document.getData().get("photos").toString());
-        return item;
+            Item item = new Item();
+            item.id = document.getId();
+            item.title = document.getString("title");
+            item.description = document.getString("description");
+            item.notes = document.getString("notes");
+            item.price = document.getDouble("price");
+            item.ratingSum = document.getDouble("ratingSum");
+            item.ratingAverage = document.getDouble("ratingAverage");
+            item.categoryId = document.getString("categoryId");
+            item.priceTypeId = document.getString("priceTypeId");
+            item.createdAt = document.getLong("createdAt");
+
+            Address address = new Address();
+            address.id = document.getString("address.id");
+            address.name = document.getString("address.name");
+            address.fullName = document.getString("address.fullName");
+            address.latitude = document.getDouble("address.latitude");
+            address.longitude = document.getDouble("address.longitude");
+            address.northeastLatitude = document.getDouble("address.northeastLatitude");
+            address.northeastLongitude = document.getDouble("address.northeastLongitude");
+            address.southwestLatitude = document.getDouble("address.southwestLatitude");
+            address.southwestLongitude = document.getDouble("address.southwestLongitude");
+
+            item.address = address;
+            item.ownerId = document.getString("ownerId");
+            item.mainPhoto = document.getString("mainPhoto");
+            if (document.getData().get("photos") != null)
+                item.photos = ConvertHelper.stringsToArrayList(document.getData().get("photos").toString());
+            return item;
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public static Booking convertToBooking(DocumentSnapshot document) {
@@ -92,10 +99,6 @@ public class ConvertHelper {
         booking.startedAt = document.getDate("startedAt").getTime();
         booking.endAt = document.getDate("endAt").getTime();
         booking.isConfirmed = document.getBoolean("isConfirmed");
-        booking.ownerName = document.getString("ownerName");
-        booking.ownerPhoto = document.getString("ownerPhoto");
-        booking.clientName = document.getString("clientName");
-        booking.clientPhoto = document.getString("clientPhoto");
         booking.priceTypeId = document.getString("priceTypeId");
         return booking;
     }
@@ -236,5 +239,11 @@ public class ConvertHelper {
             if(googleSignInAccount.getEmail() != null) user.email = googleSignInAccount.getEmail();
         }
         return user;
+    }
+
+    public static Dialog convertToDialog(DocumentSnapshot document) {
+        Dialog dialog = document.toObject(Dialog.class);
+        dialog.id = document.getId();
+        return dialog;
     }
 }

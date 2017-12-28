@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -58,6 +59,7 @@ public class AddItemViewActivity extends AppCompatActivity {
 
     private View uploadBackground;
     private RelativeLayout progressBarLayout;
+    private TextView uploadMessage;
 
     private Toast toast;
 
@@ -124,6 +126,7 @@ public class AddItemViewActivity extends AppCompatActivity {
         save = findViewById(R.id.add_offer_save);
         uploadBackground = findViewById(R.id.add_item_load_background);
         progressBarLayout = findViewById(R.id.add_item_progressbar_layout);
+        uploadMessage = findViewById(R.id.add_item_upload_message);
     }
 
     private void initToolbar() {
@@ -264,7 +267,9 @@ public class AddItemViewActivity extends AppCompatActivity {
             photosAdapter.notifyItemRemoved(1);
         }
         photosAdapter.getPhotos().add(photo);
-        photosAdapter.notifyItemInserted(photosAdapter.getPhotos().size());
+        photosAdapter.notifyItemInserted(photosAdapter.getItemCount());
+        photosAdapter.notifyDataSetChanged();
+
     }
 
     void setPhotosCountInfo(String info) {
@@ -289,6 +294,10 @@ public class AddItemViewActivity extends AppCompatActivity {
     /**
      * OTHER ELEMENTS GETTERS AND SETTERS
      */
+
+    void setToolbarTitle(String title){
+        toolbar.setTitle(title);
+    }
 
     void setName(@NonNull String title){
         this.name.setText(title);
@@ -320,6 +329,10 @@ public class AddItemViewActivity extends AppCompatActivity {
 
     void setButtonText(@NonNull String text){
         save.setText(text);
+    }
+
+    void setUploadMessage(String message){
+        uploadMessage.setText(message);
     }
 
     String getItemTitle() {
@@ -458,9 +471,10 @@ public class AddItemViewActivity extends AppCompatActivity {
         alert11.show();
     }
 
-    void launchCloseConfirmationDialog(){
+    void launchCloseConfirmationDialog(final boolean isModeEdit, final boolean isDataChanged){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-        builder1.setMessage(R.string.confirmation_closing);
+        if(isModeEdit) builder1.setMessage(R.string.confirmation_closing_mode_edit);
+        else builder1.setMessage(R.string.confirmation_closing);
         builder1.setCancelable(true);
         builder1.setTitle(R.string.confirm_exit);
 
@@ -469,7 +483,7 @@ public class AddItemViewActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        AddItemPresenter.getInstance(AddItemViewActivity.this).onFinish();
+                        AddItemPresenter.getInstance(AddItemViewActivity.this).onFinish(isDataChanged);
                     }
                 });
 

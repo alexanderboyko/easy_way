@@ -8,12 +8,13 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Booking {
-    public String id, ownerId, clientId, itemId, priceTypeId;
+    public String id, ownerId, clientId, itemId, priceTypeId, dialogId;
     public long createdAt, updatedAt, startedAt, endAt;
     public boolean isCanceled, isFinished, isStarted;
 
-    public boolean isConfirmed;
-    public String ownerName, ownerPhoto, clientName, clientPhoto;
+    public double price;
+
+    public boolean isConfirmed, isReviewAdded;
 
     public String itemTitle, itemPhoto;
 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/item_booking_background"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:padding="16dp">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/item_booking_photo"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/pic_logo" />
+
+    <TextView
+        android:id="@+id/item_booking_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@+id/item_booking_photo"
+        android:layout_toRightOf="@+id/item_booking_photo"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:minLines="1"
+        android:text="@string/default_very_long"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/item_booking_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_booking_title"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/item_booking_photo"
+        android:layout_toRightOf="@+id/item_booking_photo"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/color_accent"
+        android:textSize="15sp" />
+
+
+    <TextView
+        android:id="@+id/item_booking_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_booking_price"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/item_booking_photo"
+        android:layout_toRightOf="@+id/item_booking_photo"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/primary_text"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/item_booking_dates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_booking_status"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/item_booking_photo"
+        android:layout_toRightOf="@+id/item_booking_photo"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="@string/default_long"
+        android:textColor="@color/primary_text"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/item_booking_cancel"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_booking_dates"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/item_booking_photo"
+        android:layout_toRightOf="@+id/item_booking_photo"
+        android:text="@string/booking_cancel"
+        android:textColor="@color/likeColor" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/item_booking_cancel"
+        android:layout_marginTop="8dp"
+        android:background="@color/grey_light" />
+
+</RelativeLayout>

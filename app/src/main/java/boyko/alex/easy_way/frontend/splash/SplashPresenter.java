@@ -1,7 +1,5 @@
 package boyko.alex.easy_way.frontend.splash;
 
-import android.os.Bundle;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -48,10 +46,4 @@ class SplashPresenter {
         splashView.launchExploreActivity();
     }
 
-    //Callback for login information return, synchronous, reverts automatically to init
-    void handleLoginResult(Bundle loginData) {
-        splashModel.addAccountInformation(loginData);
-        //Immediately return to init for further initialisation
-        this.initApp();
-    }
 }
