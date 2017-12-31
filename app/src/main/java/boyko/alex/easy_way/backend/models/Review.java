@@ -10,7 +10,7 @@ import org.parceler.Parcel;
 public class Review {
     public String id;
     public String text;
-    public byte mark;
+    public int mark;
     public String userName, userPhoto, ownerId, userId, bookingId, itemId;
 
     public long createdAt;

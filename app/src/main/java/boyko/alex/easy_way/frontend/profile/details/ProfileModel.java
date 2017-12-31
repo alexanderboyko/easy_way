@@ -102,7 +102,7 @@ class ProfileModel {
 
     private void startLoadingReviews(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query query = db.collection("review").whereEqualTo("owner", userId);
+        Query query = db.collection("reviews").whereEqualTo("ownerId", userId);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

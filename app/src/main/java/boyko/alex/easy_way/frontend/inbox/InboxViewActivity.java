@@ -239,7 +239,9 @@ public class InboxViewActivity extends AppCompatActivity {
                 dialogs.add(dialog);
             }
             for (DocumentSnapshot document : querySnapshot2) {
-                dialogs.add(ConvertHelper.convertToDialog(document));
+                Dialog dialog = ConvertHelper.convertToDialog(document);
+                if (dialog.user1Id.equals(dialog.user2Id)) continue;
+                dialogs.add(dialog);
             }
 
             DataMediator.setDialogs(dialogs);

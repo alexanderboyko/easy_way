@@ -2,7 +2,6 @@ package boyko.alex.easy_way.backend;
 
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -140,7 +139,7 @@ public class ConvertHelper {
     public static ArrayList<Event> convertBookingsToEvents(ArrayList<Booking> bookings) {
         ArrayList<Event> events = new ArrayList<>();
         for (Booking booking : bookings) {
-            events.addAll(getEventsFromTimeRange(booking.startedAt, booking.endAt));
+            if(!booking.isCanceled) events.addAll(getEventsFromTimeRange(booking.startedAt, booking.endAt));
         }
         return events;
     }
@@ -206,7 +205,7 @@ public class ConvertHelper {
         User user = new User();
         if (object != null) {
             try {
-                Log.i(LOG_TAG, object.toString());
+                //Log.i(LOG_TAG, object.toString());
                 if (object.getString("first_name") != null) {
                     user.name = object.getString("first_name");
                 }

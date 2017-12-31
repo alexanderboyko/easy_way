@@ -1,7 +1,18 @@
 package boyko.alex.easy_way.frontend.item.item_details;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.view.View;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +22,8 @@ import boyko.alex.easy_way.ApplicationController;
 import boyko.alex.easy_way.R;
 import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
+import boyko.alex.easy_way.backend.RequestCodes;
+import boyko.alex.easy_way.backend.models.Address;
 import boyko.alex.easy_way.backend.models.Booking;
 import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.Like;
@@ -18,14 +31,17 @@ import boyko.alex.easy_way.backend.models.PriceType;
 import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.backend.models.User;
 import boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar;
+import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
 import boyko.alex.easy_way.libraries.DateHelper;
 
 /**
  * Created by Sasha on 11.11.2017.
+ *
+ * Item details logic here
  */
 
 class ItemDetailsPresenter {
-    private final String LOG_TAG = getClass().getSimpleName();
+    //private final String LOG_TAG = getClass().getSimpleName();
     private ItemDetailsViewActivity view;
     private static ItemDetailsPresenter presenter;
 
@@ -33,6 +49,8 @@ class ItemDetailsPresenter {
     private long previousDate;
 
     private boolean likeLoading = false;
+
+    private boolean isDataLoaded = false;
 
     private ItemDetailsPresenter(ItemDetailsViewActivity view) {
         this.view = view;
@@ -47,12 +65,81 @@ class ItemDetailsPresenter {
         return presenter;
     }
 
-    void startLoading(Item item) {
+    void onCreate(@Nullable Bundle savedInstanceState){
+        if(savedInstanceState == null) {
+            isDataLoaded = false;
+            Item item = Parcels.unwrap(view.getIntent().getParcelableExtra("item"));
+            if (item != null) {
+                setItem(item);
+                startLoading(item);
+            } else {
+                String id = view.getIntent().getStringExtra("itemId");
+                if (id != null) startLoading(id);
+            }
+        }else{
+            Item item = Parcels.unwrap(savedInstanceState.getParcelable("item"));
+            ArrayList<Object> similarItems = Parcels.unwrap(savedInstanceState.getParcelable("similarItems"));
+            ArrayList<Booking> bookings = Parcels.unwrap(savedInstanceState.getParcelable("bookings"));
+            User owner = Parcels.unwrap(savedInstanceState.getParcelable("owner"));
+            ArrayList<Review> reviews = Parcels.unwrap(savedInstanceState.getParcelable("reviews"));
+
+            if(isDataLoaded){
+                setItem(item);
+                initItemData(item);
+                setSimilarObjectItems(similarItems);
+                setBookings(bookings);
+                setOwner(owner);
+                setReviews(reviews);
+                loadingFinished();
+            }else{
+                Item item1 = Parcels.unwrap(view.getIntent().getParcelableExtra("item"));
+                if (item1 != null) {
+                    setItem(item1);
+                    startLoading(item1);
+                } else {
+                    String id = view.getIntent().getStringExtra("itemId");
+                    if (id != null) startLoading(id);
+                }
+            }
+        }
+    }
+
+    void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == RequestCodes.REQUEST_CODE_EDIT){
+            if(resultCode == RequestCodes.RESULT_CODE_OK){
+                if(data != null){
+                    Booking booking = Parcels.unwrap(data.getParcelableExtra("booking"));
+                    if(booking != null) {
+                        view.addBooking(booking);
+                        ArrayList<Booking> bookings = new ArrayList<>();
+                        bookings.add(booking);
+                        view.addEvents(ConvertHelper.convertBookingsToEvents(bookings));
+                    }
+                }
+            }
+        }
+        if(requestCode == RequestCodes.REQUEST_CODE_DETAILS){
+            updateLikes();
+        }
+    }
+
+    private void startLoading(String itemId){
+        view.setLoading(true);
+        ItemDetailsModel.getInstance(this).startLoading(itemId);
+    }
+
+    private void startLoading(Item item) {
         view.setLoading(true);
         ItemDetailsModel.getInstance(this).startLoading(item);
+        initItemData(item);
+    }
 
+    private void initItemData(Item item){
         if (item.mainPhoto != null) {
-            view.setItemPhoto(item.mainPhoto);
+            ArrayList<String > photos = new ArrayList<>();
+            photos.add(item.mainPhoto);
+            if(item.photos != null && !item.photos.isEmpty()) photos.addAll(item.photos);
+            view.setItemPhoto(photos);
         }
 
         view.setTitle(item.title);
@@ -73,9 +160,18 @@ class ItemDetailsPresenter {
             view.setRating(rating);
         }
 
-        view.setDescription(item.description);
+        if(item.description == null || item.description.isEmpty()){
+            view.setDescription(ApplicationController.getInstance().getString(R.string.no_info));
+        }else{
+            view.setDescription(item.description);
+        }
 
-        if (item.notes != null) view.setNotes(item.notes);
+        if (item.notes == null || item.notes.isEmpty()){
+            view.setNotes(ApplicationController.getInstance().getString(R.string.no_info));
+        }else{
+            view.setNotes(item.notes);
+        }
+
         if (item.address != null && item.address.name != null) view.setLocation(item.address.name);
 
         view.setMonthName(DateHelper.getFormattedCalendarMonthName(DateHelper.getCurrentTime()));
@@ -83,10 +179,39 @@ class ItemDetailsPresenter {
         if(DataMediator.getLike(item.id) != null){
             view.setLikeIcon(true);
         }
+
+        if(item.ownerId.equals(DataMediator.getUser().id)) view.setContactButtonVisibility(View.GONE);
     }
 
     void loadingFinished() {
+        isDataLoaded = true;
         view.setLoading(false);
+    }
+
+    void onSimilarItemLikeClicked(ItemsRecyclerAdapter adapter, int position, Item item){
+        final Like like = DataMediator.getLike(((Item) adapter.getItems().get(position)).id);
+        if (like != null) {
+            //item has been liked
+            FirebaseFirestore.getInstance().collection("likes").document(like.id).delete();
+            DataMediator.removeLike(like.id);
+        }else{
+            final Like likeNew = new Like();
+            likeNew.itemId = item.id;
+            likeNew.userId = DataMediator.getUser().id;
+
+            FirebaseFirestore.getInstance().collection("likes").add(likeNew).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    if(task.isSuccessful()){
+                        likeNew.id = task.getResult().getId();
+                        DataMediator.getLikes().add(likeNew);
+                    }
+                }
+            });
+        }
+
+        ((Item) adapter.getItems().get(position)).isLiked = !((Item) adapter.getItems().get(position)).isLiked;
+        adapter.notifyItemChanged(position);
     }
 
     void onContactClicked(){
@@ -207,6 +332,11 @@ class ItemDetailsPresenter {
         likeLoading = false;
     }
 
+    void setItem(Item item){
+        view.setItem(item);
+        initItemData(item);
+    }
+
     void setOwner(User owner) {
         view.setOwner(owner);
     }
@@ -227,6 +357,10 @@ class ItemDetailsPresenter {
         }
     }
 
+    void setAddress(@NonNull Address address){
+        view.setAddress(address.fullName);
+    }
+
     void setSimilarItems(ArrayList<Item> similarItems) {
         view.setSimilarItems(similarItems);
         if(similarItems != null && !similarItems.isEmpty()){
@@ -238,4 +372,35 @@ class ItemDetailsPresenter {
         }
     }
 
+    private void setSimilarObjectItems(ArrayList<Object> similarItems) {
+        view.setSimilarObjectItems(similarItems);
+        if(similarItems != null && !similarItems.isEmpty()){
+            view.setSimilarItemsEmptyMessageVisibility(View.GONE);
+            view.setSimilarItemsRecyclerVisibility(View.VISIBLE);
+        }else{
+            view.setSimilarItemsEmptyMessageVisibility(View.VISIBLE);
+            view.setSimilarItemsRecyclerVisibility(View.GONE);
+        }
+    }
+
+    private void updateLikes(){
+        Item item = view.getItem();
+        Like like = null;
+        if(item != null && item.id != null) like = DataMediator.getLike(item.id);
+
+        if(like == null){
+            view.setLikeIcon(false);
+        }else{
+            view.setLikeIcon(true);
+        }
+
+        ItemsRecyclerAdapter adapter = view.getSimilarItemsAdapter();
+        if(adapter != null && adapter.getItems() != null && !adapter.getItems().isEmpty()){
+            for(int i =0;i<adapter.getItemCount();i++){
+                Like like1 = DataMediator.getLike(((Item)adapter.getItems().get(i)).id);
+                ((Item) adapter.getItems().get(i)).isLiked = (like1 != null);
+                adapter.notifyItemChanged(i);
+            }
+        }
+    }
 }

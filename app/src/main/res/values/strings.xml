@@ -217,4 +217,15 @@
     <string name="booking_empty_message_bookings_to_ny_offers">No book request to your items yet</string>
     <string name="booking_decline">Decline</string>
     <string name="error_sending_accept_message">Error sending accepting message</string>
+    <string name="mark">Mark</string>
+    <string name="mark_">Mark:</string>
+    <string name="review_">Review:</string>
+    <string name="type_review">Your review..</string>
+    <string name="booking_canceled">Canceled booking</string>
+    <string name="booking_price">Booking price:</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="surname_">Surname:</string>
+    <string name="birthday_">Birthday:</string>
+    <string name="gender_">Gender:</string>
+    <string name="updating_user">Updating user data..</string>
 </resources>

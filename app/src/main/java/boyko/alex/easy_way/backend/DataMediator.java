@@ -1,7 +1,6 @@
 package boyko.alex.easy_way.backend;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +79,7 @@ public class DataMediator {
         if(categories == null || parentCategoryId == null) return new ArrayList<>();
         ArrayList<Category> temp = new ArrayList<>();
         for (Category category : categories) {
-            if (category.parentCategoryId.equals(parentCategoryId)) temp.add(category);
+            if (category.parentCategoryId != null && category.parentCategoryId.equals(parentCategoryId)) temp.add(category);
         }
         return temp;
     }
@@ -94,7 +93,6 @@ public class DataMediator {
         }
         return temp;
     }
-
 
 
     @Nullable
@@ -151,12 +149,12 @@ public class DataMediator {
     }
 
     public static void printData() {
-        for (Category category : categories)
-            Log.i("DATA", category.id + " " + category.name + " " + category.iconUrl + " " + category.parentCategoryId);
-        for (ItemType itemType : itemTypes)
-            Log.i("DATA", itemType.id + " " + itemType.name);
-        for (PriceType priceType : priceTypes)
-            Log.i("DATA", priceType.id + " " + priceType.name + " " + priceType.shortName);
+//        for (Category category : categories)
+//            Log.i("DATA", category.id + " " + category.name + " " + category.iconUrl + " " + category.parentCategoryId);
+//        for (ItemType itemType : itemTypes)
+//            Log.i("DATA", itemType.id + " " + itemType.name);
+//        for (PriceType priceType : priceTypes)
+//            Log.i("DATA", priceType.id + " " + priceType.name + " " + priceType.shortName);
     }
 
 

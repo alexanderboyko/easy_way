@@ -2,7 +2,6 @@ package boyko.alex.easy_way.frontend.gallery;
 
 import android.app.DialogFragment;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,13 +28,12 @@ import boyko.alex.easy_way.R;
 
 /**
  * Created by Sasha on 03.12.2017.
+ *
+ * This is fullscreen images gallery fragment
  */
 
 public class GalleryFragment extends DialogFragment {
-    private ArrayList images;
-    private ImageViewPager viewPager;
-    private GalleryViewPagerAdapter adapter;
-    private AppCompatImageView backIcon;
+    private ArrayList<String> images;
     private TextView title;
     private int selectedPosition = 0;
 
@@ -54,13 +52,13 @@ public class GalleryFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_fullscreen_images, container, false);
 
-        images = getArguments().getParcelableArrayList("images");
+        images = getArguments().getStringArrayList("images");
         selectedPosition = getArguments().getInt("position");
-        viewPager = v.findViewById(R.id.fragment_fullscreen_images_viewpager);
+        ImageViewPager viewPager = v.findViewById(R.id.fragment_fullscreen_images_viewpager);
         title = v.findViewById(R.id.fragment_fullscreen_images_title);
-        backIcon = v.findViewById(R.id.fragment_fullscreen_images_back);
+        AppCompatImageView backIcon = v.findViewById(R.id.fragment_fullscreen_images_back);
 
-        adapter = new GalleryViewPagerAdapter();
+        GalleryViewPagerAdapter adapter = new GalleryViewPagerAdapter();
 
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -81,6 +79,7 @@ public class GalleryFragment extends DialogFragment {
             }
         });
         viewPager.setCurrentItem(selectedPosition);
+        title.setText((selectedPosition + 1) + " of " + images.size());
 
         backIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,21 +104,19 @@ public class GalleryFragment extends DialogFragment {
             View view = layoutInflater.inflate(R.layout.item_fullscreen_image, container, false);
 
             AppCompatImageView imageViewPreview = view.findViewById(R.id.item_fullscreen_image_image);
-            if (images.get(position) instanceof Bitmap) {
-                imageViewPreview.setImageBitmap((Bitmap) images.get(position));
-                imageViewPreview.setOnTouchListener(new ImageMatrixTouchHandler(container.getContext()));
-            } else {
-                try {
-                    Glide.with(ApplicationController.getInstance())
-                            .load(new URL((String)images.get(position)))
-                            .apply(RequestOptions.skipMemoryCacheOf(true))
-                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                            .apply(RequestOptions.noTransformation())
-                            .into(imageViewPreview);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+            imageViewPreview.setOnTouchListener(new ImageMatrixTouchHandler(container.getContext()));
+
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(images.get(position)))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .into(imageViewPreview);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
+
             container.addView(view);
 
             return view;
@@ -146,7 +143,7 @@ public class GalleryFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemPosition(Object object) {
+        public int getItemPosition(@NonNull Object object) {
             return POSITION_NONE;
         }
     }

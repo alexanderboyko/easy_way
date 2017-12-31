@@ -18,6 +18,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.ApplicationController;
@@ -66,25 +68,28 @@ class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecyclerAdapt
 
         if(category.iconUrl != null){
             holder.icon.setVisibility(View.VISIBLE);
-            Glide.with(ApplicationController.getInstance())
-                    .load(category.iconUrl)
-                    .apply(RequestOptions.fitCenterTransform())
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                    .apply(RequestOptions.noTransformation())
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            holder.icon.setVisibility(View.GONE);
-                            return false;
-                        }
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(category.iconUrl))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                holder.icon.setVisibility(View.GONE);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(holder.icon);
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(holder.icon);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }else{
             holder.icon.setVisibility(View.GONE);
         }

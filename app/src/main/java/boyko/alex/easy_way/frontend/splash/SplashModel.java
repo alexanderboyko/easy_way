@@ -1,7 +1,6 @@
 package boyko.alex.easy_way.frontend.splash;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -76,8 +75,6 @@ class SplashModel {
                             DataMediator.setCategories(categories);
                             categoriesLoaded = true;
                             checkLoadingFinished();
-                        } else {
-                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -97,8 +94,6 @@ class SplashModel {
                             DataMediator.setItemTypes(itemTypes);
                             itemTypesLoaded = true;
                             checkLoadingFinished();
-                        } else {
-                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -119,8 +114,6 @@ class SplashModel {
                             DataMediator.setPriceTypes(priceTypes);
                             priceTypesLoaded = true;
                             checkLoadingFinished();
-                        } else {
-                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -136,36 +129,14 @@ class SplashModel {
                                 DataMediator.setUser(ConvertHelper.convertToUser(task.getResult().getDocuments().get(0)));
                             }
                             loadDialogs();
+                            loadLikes();
                             userLoaded = true;
                             checkLoadingFinished();
-                        } else {
-                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
 
-        db.collection("likes")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            ArrayList<Like> likes = new ArrayList<>();
-                            for (DocumentSnapshot document : task.getResult()) {
-                                Like like = new Like();
-                                like.id = document.getId();
-                                like.itemId = document.getString("itemId");
-                                like.userId = document.getString("userId");
-                                likes.add(like);
-                            }
-                            DataMediator.setLikes(likes);
-                            likesLoaded = true;
-                            checkLoadingFinished();
-                        } else {
-                            Log.w(LOG_TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+
 
     }
 
@@ -201,6 +172,30 @@ class SplashModel {
                 }
             }
         });
+    }
+
+    private void loadLikes(){
+        FirebaseFirestore.getInstance().collection("likes")
+                .whereEqualTo("userId", DataMediator.getUser().id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<Like> likes = new ArrayList<>();
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Like like = new Like();
+                                like.id = document.getId();
+                                like.itemId = document.getString("itemId");
+                                like.userId = document.getString("userId");
+                                likes.add(like);
+                            }
+                            DataMediator.setLikes(likes);
+                            likesLoaded = true;
+                            checkLoadingFinished();
+                        }
+                    }
+                });
     }
 
     private void filterDialogs() {

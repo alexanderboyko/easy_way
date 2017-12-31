@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +35,7 @@ import boyko.alex.easy_way.backend.models.Booking;
 import boyko.alex.easy_way.backend.models.Message;
 import boyko.alex.easy_way.backend.models.PriceType;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
+import boyko.alex.easy_way.frontend.review.AddReviewActivity;
 import boyko.alex.easy_way.libraries.DateHelper;
 
 /**
@@ -89,35 +92,36 @@ public class BookingsViewFragment extends Fragment {
     private void init(View view) {
         emptyMessage = view.findViewById(R.id.bookings_empty);
         recyclerView = view.findViewById(R.id.bookings_recycler);
-        if (mode == MODE_MY_BOOKINGS) {
-            adapter = new BookingsRecyclerAdapter(BookingsRecyclerAdapter.MODE_MY_BOOKINGS);
-        } else {
-            adapter = new BookingsRecyclerAdapter(BookingsRecyclerAdapter.MODE_BOOKINGS_TO_MY_OFFERS);
+        if(adapter == null) {
+            if (mode == MODE_MY_BOOKINGS) {
+                adapter = new BookingsRecyclerAdapter(BookingsRecyclerAdapter.MODE_MY_BOOKINGS);
+            } else {
+                adapter = new BookingsRecyclerAdapter(BookingsRecyclerAdapter.MODE_BOOKINGS_TO_MY_OFFERS);
+            }
+            adapter.setListener(new BookingsRecyclerAdapter.OnBookingClickListener() {
+                @Override
+                public void onBookingClick(int position) {
+                    positionClicked = position;
+                    launchItemDetailsActivity(adapter.getBookings().get(position).itemId);
+                }
+
+                @Override
+                public void onButtonAction1Clicked(int position) {
+                    positionClicked = position;
+                    onDeclineClicked(position);
+                }
+
+                @Override
+                public void onButtonAction2Clicked(int position) {
+                    positionClicked = position;
+                    onAcceptClicked(position);
+                }
+            });
+            adapter.setBookings(new ArrayList<Booking>());
+            loadBookings();
         }
-        adapter.setListener(new BookingsRecyclerAdapter.OnBookingClickListener() {
-            @Override
-            public void onBookingClick(int position) {
-                positionClicked = position;
-                launchItemDetailsActivity(adapter.getBookings().get(position).itemId);
-            }
-
-            @Override
-            public void onButtonAction1Clicked(int position) {
-                positionClicked = position;
-                onDeclineClicked(position);
-            }
-
-            @Override
-            public void onButtonAction2Clicked(int position) {
-                positionClicked = position;
-                onAcceptClicked(position);
-            }
-        });
-        adapter.setBookings(new ArrayList<Booking>());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
-
-        loadBookings();
     }
 
     private void loadBookings() {
@@ -265,14 +269,14 @@ public class BookingsViewFragment extends Fragment {
         PriceType priceType = DataMediator.getPriceType(booking.priceTypeId);
         if (priceType != null && priceType.shortName.equals("/day")) {
             messageText +=
-                    DateHelper.getFormattedDateWithoutTime(booking.startedAt)
+                    DateHelper.getSmartFormattedDate(booking.startedAt)
                             + " - "
-                            + DateHelper.getFormattedDateWithoutTime(booking.endAt);
+                            + DateHelper.getSmartFormattedDate(booking.endAt);
         } else {
             messageText +=
-                    DateHelper.getFormattedDateWithTime(booking.startedAt)
+                    DateHelper.getSmartFormattedDateWithTime(booking.startedAt)
                             + " - "
-                            + DateHelper.getFormattedDateWithTime(booking.endAt);
+                            + DateHelper.getSmartFormattedDateWithTime(booking.endAt);
         }
         messageText += " has been accepted. Check it in booking section.";
         message.text = messageText;
@@ -300,14 +304,14 @@ public class BookingsViewFragment extends Fragment {
         PriceType priceType = DataMediator.getPriceType(booking.priceTypeId);
         if (priceType != null && priceType.shortName.equals("/day")) {
             messageText +=
-                    DateHelper.getFormattedDateWithoutTime(booking.startedAt)
+                    DateHelper.getSmartFormattedDate(booking.startedAt)
                             + " - "
-                            + DateHelper.getFormattedDateWithoutTime(booking.endAt);
+                            + DateHelper.getSmartFormattedDate(booking.endAt);
         } else {
             messageText +=
-                    DateHelper.getFormattedDateWithTime(booking.startedAt)
+                    DateHelper.getSmartFormattedDateWithTime(booking.startedAt)
                             + " - "
-                            + DateHelper.getFormattedDateWithTime(booking.endAt);
+                            + DateHelper.getSmartFormattedDateWithTime(booking.endAt);
         }
         messageText += " has been declined. Check it in booking section.";
         message.text = messageText;
@@ -332,6 +336,10 @@ public class BookingsViewFragment extends Fragment {
     }
 
     void launchAddReviewActivity(int position) {
-        //// TODO: 28.12.2017
+        Intent intent = new Intent(getActivity(), AddReviewActivity.class);
+        intent.putExtra("itemId", adapter.getBookings().get(position).itemId);
+        intent.putExtra("ownerId", adapter.getBookings().get(position).ownerId);
+        intent.putExtra("booking", Parcels.wrap(adapter.getBookings().get(position)));
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
     }
 }

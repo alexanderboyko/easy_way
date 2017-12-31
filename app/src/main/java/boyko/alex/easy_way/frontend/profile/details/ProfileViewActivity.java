@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -25,6 +26,8 @@ import com.bumptech.glide.request.target.Target;
 
 import org.parceler.Parcels;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.ApplicationController;
@@ -35,11 +38,14 @@ import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.backend.models.User;
 import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
 import boyko.alex.easy_way.frontend.explore.ReviewsRecyclerAdapter;
+import boyko.alex.easy_way.frontend.gallery.GalleryFragment;
 import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Sasha on 17.12.2017.
+ * <p>
+ * Iser profile details activity.
  */
 
 public class ProfileViewActivity extends AppCompatActivity {
@@ -56,6 +62,7 @@ public class ProfileViewActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private User user;
+    private Address addressObject;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,9 +76,28 @@ public class ProfileViewActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("items", Parcels.wrap(itemsAdapter.getItems()));
+        outState.putParcelable("reviews", Parcels.wrap(reviewsAdapter.getReviews()));
+        outState.putParcelable("user", Parcels.wrap(user));
+        outState.putParcelable("address", Parcels.wrap(addressObject));
+        super.onSaveInstanceState(outState);
     }
 
     private void init() {
@@ -112,27 +138,39 @@ public class ProfileViewActivity extends AppCompatActivity {
         } else {
             noPhotoLayout.setVisibility(View.GONE);
             photo.setVisibility(View.VISIBLE);
-            Glide.with(ApplicationController.getInstance())
-                    .load(user.photo)
-                    .apply(RequestOptions.fitCenterTransform())
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                    .apply(RequestOptions.noTransformation())
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            noPhotoLayout.setVisibility(View.VISIBLE);
-                            photo.setVisibility(View.GONE);
-                            return false;
-                        }
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(user.photo))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                noPhotoLayout.setVisibility(View.VISIBLE);
+                                photo.setVisibility(View.GONE);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(photo);
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(photo);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
+
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> photos = new ArrayList<>();
+                photos.add(user.photo);
+                launchFullscreenGallery(photos, 0);
+            }
+        });
     }
 
     private void initRecyclerViews() {
@@ -145,7 +183,10 @@ public class ProfileViewActivity extends AppCompatActivity {
 
             @Override
             public void onLikeClicked(int position) {
+                ProfilePresenter.getInstance(ProfileViewActivity.this).onLikeClicked(((Item) itemsAdapter.getItems().get(position)).id);
 
+                ((Item) itemsAdapter.getItems().get(position)).isLiked = !((Item) itemsAdapter.getItems().get(position)).isLiked;
+                itemsAdapter.notifyItemChanged(position);
             }
 
             @Override
@@ -162,7 +203,14 @@ public class ProfileViewActivity extends AppCompatActivity {
         itemsRecycler.setAdapter(itemsAdapter);
 
         reviewsAdapter = new ReviewsRecyclerAdapter(ReviewsRecyclerAdapter.MODE_ITEM_DETAILS);
+        reviewsAdapter.setListener(new ReviewsRecyclerAdapter.OnReviewClickListener() {
+            @Override
+            public void onUserClicked(int position) {
+                launchProfileActivity(reviewsAdapter.getReviews().get(position).userId);
+            }
+        });
         reviewsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        reviewsRecycler.setNestedScrollingEnabled(false);
         reviewsRecycler.setAdapter(reviewsAdapter);
     }
 
@@ -205,6 +253,7 @@ public class ProfileViewActivity extends AppCompatActivity {
     }
 
     void setAddress(Address address) {
+        addressObject = address;
         if (address != null) this.address.setText(address.fullName);
         else this.address.setText(getString(R.string.no_info));
     }
@@ -229,5 +278,21 @@ public class ProfileViewActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ItemDetailsViewActivity.class);
         intent.putExtra("item", Parcels.wrap(item));
         startActivity(intent);
+    }
+
+    void launchProfileActivity(String userId) {
+        Intent intent = new Intent(this, ProfileViewActivity.class);
+        intent.putExtra("userId", userId);
+        startActivity(intent);
+    }
+
+    void launchFullscreenGallery(ArrayList<String> images, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("images", images);
+        bundle.putInt("position", position);
+
+        GalleryFragment newFragment = GalleryFragment.newInstance();
+        newFragment.setArguments(bundle);
+        newFragment.show(getFragmentManager(), "fullscreenGallery");
     }
 }

@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'MyKey'
+            keyPassword 'croatiaisbeautiful2015'
+            storeFile file('C:/AndroidApps/alex_boyko.jks')
+            storePassword 'croatiaisbeautiful2015'
+        }
+    }
     compileSdkVersion 27
     buildToolsVersion "27.0.0"
     defaultConfig {
@@ -18,51 +26,41 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:27.0.0'
-    compile "com.android.support:support-compat:27.0.0"
+    compile 'com.android.support:support-compat:27.0.0'
     compile 'com.android.support:design:27.0.0'
     compile 'com.android.support:cardview-v7:27.0.0'
     compile 'com.android.support:support-annotations:27.0.0'
-
     compile 'de.hdodenhof:circleimageview:2.2.0'
-
     compile 'com.google.android.gms:play-services-location:11.6.2'
     compile 'com.google.android.gms:play-services-identity:11.6.2'
     compile 'com.google.android.gms:play-services-places:11.6.2'
     compile 'com.google.firebase:firebase-storage:11.6.2'
     compile 'com.google.firebase:firebase-firestore:11.6.2'
-
     compile 'com.google.firebase:firebase-auth:11.6.2'
     compile 'com.firebaseui:firebase-ui-auth:3.1.0'
     compile 'com.firebaseui:firebase-ui-firestore:3.1.2'
     compile 'com.google.gms:google-services:3.1.0'
     compile 'com.google.android.gms:play-services-auth:11.6.2'
-
     compile 'org.parceler:parceler-api:1.1.9'
     annotationProcessor 'org.parceler:parceler:1.1.9'
-
     compile 'com.facebook.android:facebook-login:[4,5)'
-
     compile 'com.github.bumptech.glide:glide:4.3.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
-
     compile 'com.github.sundeepk:compact-calendar-view:2.0.2.2'
-
     compile 'com.github.jrvansuita:PickImage:2.1.5'
-
     compile 'com.bogdwellers:pinchtozoom:0.1'
-
     compile 'com.wdullaer:materialdatetimepicker:3.4.1'
-
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -43,6 +43,7 @@
             android:id="@+id/item_details_photo_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:layout_below="@+id/item_details_location"
             android:layout_marginTop="16dp">
 
@@ -255,6 +256,7 @@
             android:layout_marginTop="4dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
+            android:visibility="gone"
             android:gravity="center|start"
             android:text="@string/read_others"
             android:textColor="@color/color_accent"
@@ -268,6 +270,7 @@
             android:layout_marginTop="4dp"
             android:gravity="center|start"
             android:text="@string/no_reviews_yet"
+            android:visibility="gone"
             android:textColor="@color/primary_text"
             android:textSize="16sp" />
 

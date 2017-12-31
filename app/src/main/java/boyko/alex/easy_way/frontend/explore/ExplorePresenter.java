@@ -17,7 +17,15 @@ import android.widget.PopupMenu;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -28,7 +36,9 @@ import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Address;
 import boyko.alex.easy_way.backend.models.Category;
+import boyko.alex.easy_way.backend.models.Dialog;
 import boyko.alex.easy_way.backend.models.Item;
+import boyko.alex.easy_way.backend.models.Like;
 
 /**
  * Created by Sasha on 05.11.2017.
@@ -44,6 +54,10 @@ class ExplorePresenter {
     //makes false if we finished loading next items
     //needs to not starting loading next items several times, but only one and waiting until loading finished
     private boolean isNextItemLoading = false;
+    private boolean isStartItemsLoading = false;
+
+    private boolean firstDialogLoaded = false, secondDialogLoaded = false;
+    private QuerySnapshot querySnapshot1, querySnapshot2;
 
     private ExplorePresenter(ExploreViewActivity view) {
         this.view = view;
@@ -58,12 +72,13 @@ class ExplorePresenter {
         return presenter;
     }
 
-    void onCreate(@Nullable Bundle savedInstanceState){
-        if(savedInstanceState == null){
+    void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
             //launching activity
             isNextItemLoading = false;
+            isStartItemsLoading = false;
             ExploreModel.getInstance(this).setCategoryId(null);
-            ExploreModel.getInstance(this).setAddressId(null);
+            ExploreModel.getInstance(this).setAddress(null);
             ExploreModel.getInstance(this).setPriceFrom(0);
             ExploreModel.getInstance(this).setPriceTo(0);
             ExploreModel.getInstance(this).setOrder(null);
@@ -74,21 +89,60 @@ class ExplorePresenter {
             view.setFilterOrder(ApplicationController.getInstance().getString(R.string.newest));
 
             startLoading();
-        }else{
+        } else {
             //restoring activity
+            if (isStartItemsLoading) {
+                isNextItemLoading = false;
+                isStartItemsLoading = false;
+                ExploreModel.getInstance(this).setCategoryId(null);
+                ExploreModel.getInstance(this).setAddress(null);
+                ExploreModel.getInstance(this).setPriceFrom(0);
+                ExploreModel.getInstance(this).setPriceTo(0);
+                ExploreModel.getInstance(this).setOrder(null);
+
+                view.setFilterCategory(ApplicationController.getInstance().getString(R.string.all_categories));
+                view.clearFiltersAddress();
+                view.clearFiltersPrices();
+                view.setFilterOrder(ApplicationController.getInstance().getString(R.string.newest));
+
+                startLoading();
+            } else {
+                //restore items
+                loadingFinished((ArrayList<Object>) Parcels.unwrap(savedInstanceState.getParcelable("items")));
+
+                //restore view mode
+                int mode = savedInstanceState.getInt("mode");
+                if (mode == ItemsRecyclerAdapter.MODE_GRID) {
+                    view.setFiltersViewCards();
+                } else {
+                    view.setFiltersViewList();
+                }
+
+                onRestoreOrder(ExploreModel.getInstance(this).getOrder());
+                onRestoreAddress(ExploreModel.getInstance(this).getAddress());
+                onRestoreCategory(ExploreModel.getInstance(this).getCategoryId());
+                onRestorePrice(ExploreModel.getInstance(this).getPriceFrom(), ExploreModel.getInstance(this).getPriceTo());
+
+                if (isNextItemLoading) {
+                    startLoadingNext();
+                }
+            }
         }
     }
 
     void onSaveInstanceState(Bundle outState) {
-
+        outState.putParcelable("items", Parcels.wrap(view.getItems()));
+        outState.putInt("mode", view.getMode());
     }
 
     void startLoading() {
+        isStartItemsLoading = true;
         view.setLoading(true);
         ExploreModel.getInstance(this).startLoading();
     }
 
-    void onRefresh(){
+    void onRefresh() {
+        isStartItemsLoading = true;
         ExploreModel.getInstance(this).startLoading();
     }
 
@@ -110,6 +164,22 @@ class ExplorePresenter {
                 if (data != null) onAddressSelectError(PlaceAutocomplete.getStatus(view, data));
             }
         }
+
+        if(requestCode == RequestCodes.REQUEST_CODE_DETAILS){
+            updateLikes();
+        }
+
+        if(requestCode == RequestCodes.REQUEST_CODE_EDIT){
+            if(resultCode == RequestCodes.RESULT_CODE_OK){
+                startLoading();
+            }
+        }
+
+        if(requestCode == RequestCodes.REQUEST_CODE_SETTINGS){
+            if(resultCode == RequestCodes.RESULT_CODE_PROFILE_EDITED){
+                view.initUser();
+            }
+        }
     }
 
     private void startLoadingNext() {
@@ -121,8 +191,10 @@ class ExplorePresenter {
         view.setItems(items);
         view.setLoading(false);
 
-        if(items == null || items.isEmpty()) view.setNoItemsMessageVisibility(View.VISIBLE);
+        if (items == null || items.isEmpty()) view.setNoItemsMessageVisibility(View.VISIBLE);
         else view.setNoItemsMessageVisibility(View.GONE);
+
+        isStartItemsLoading = false;
     }
 
     void loadingNextFinished(ArrayList<Object> items) {
@@ -179,18 +251,31 @@ class ExplorePresenter {
         view.bottomSheetBehavior().setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    void onSearchClicked() {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        for(int i = 0; i<50;i++) db.collection("items").add(DummyGenerator.getDummyItem());
-        view.launchSearchActivity();
-    }
-
     void onItemClicked(Item item) {
         view.launchItemDetailsActivity(item);
     }
 
-    void onProfileEditClicked() {
-        view.launchEditProfileActivity();
+    void onLikeClicked(String itemId){
+        if (DataMediator.getLike(itemId) == null) {
+            final Like like1 = new Like();
+            like1.itemId = itemId;
+            like1.userId = DataMediator.getUser().id;
+            FirebaseFirestore.getInstance().collection("likes").add(like1).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    if(task.isSuccessful()){
+                        like1.id = task.getResult().getId();
+                        DataMediator.getLikes().add(like1);
+                    }
+                }
+            });
+        }else{
+            Like like = DataMediator.getLike(itemId);
+            if(like != null && like.id != null) {
+                FirebaseFirestore.getInstance().collection("likes").document(like.id).delete();
+                DataMediator.removeLike(like.id);
+            }
+        }
     }
 
     /**
@@ -243,10 +328,27 @@ class ExplorePresenter {
         }
     }
 
+    private void onRestoreCategory(String categoryId) {
+        if (categoryId != null) {
+            //category selected
+            Category category = DataMediator.getCategory(categoryId);
+            if (category != null) {
+                view.setFilterCategory(category.name);
+            }
+        }else{
+            view.setFilterCategory(ApplicationController.getInstance().getString(R.string.all_categories));
+        }
+    }
+
     private void onAddressSelected(@NonNull Address address) {
-        ExploreModel.getInstance(this).setAddressId(address.id);
+        ExploreModel.getInstance(this).setAddress(address);
         if (address.fullName != null) view.setFilterAddress(address.fullName);
         startLoading();
+    }
+
+    private void onRestoreAddress(Address address) {
+        if (address != null && address.fullName != null) view.setFilterAddress(address.fullName);
+        else view.clearFiltersAddress();
     }
 
     private void onAddressSelectError(Status status) {
@@ -257,7 +359,7 @@ class ExplorePresenter {
 
     void onFiltersClearAddressClicked() {
         view.clearFiltersAddress();
-        ExploreModel.getInstance(this).setAddressId(null);
+        ExploreModel.getInstance(this).setAddress(null);
         startLoading();
     }
 
@@ -301,14 +403,41 @@ class ExplorePresenter {
         }
     }
 
+    private void onRestorePrice(double from, double to) {
+        if (from == 0 && to == 0) {
+            view.setFiltersPriceIcon(false);
+        } else {
+            if (from != 0 && to != 0) {
+                if (from >= to) {
+                    view.setFiltersPriceToError(ApplicationController.getInstance().getString(R.string.should_be_bigger_than_from_price));
+                } else {
+                    view.setFiltersPriceIcon(true);
+                }
+                return;
+            }
+
+            if (from == 0) {
+                if (to > 0) {
+                    view.setFiltersPriceIcon(true);
+                } else {
+                    view.setFiltersPriceToError(ApplicationController.getInstance().getString(R.string.shouldnt_be_0));
+                }
+            }
+
+            if (to == 0) {
+                view.setFiltersPriceIcon(true);
+            }
+        }
+    }
+
     void onViewChangedToCards(int currentMode) {
-        if(currentMode != ItemsRecyclerAdapter.MODE_GRID){
+        if (currentMode != ItemsRecyclerAdapter.MODE_GRID) {
             view.setFiltersViewCards();
         }
     }
 
     void onViewChangedToList(int currentMode) {
-        if(currentMode != ItemsRecyclerAdapter.MODE_LINEAR_VERTICAL){
+        if (currentMode != ItemsRecyclerAdapter.MODE_LINEAR_VERTICAL) {
             view.setFiltersViewList();
         }
     }
@@ -355,5 +484,94 @@ class ExplorePresenter {
         }
 
         startLoading();
+    }
+
+    private void onRestoreOrder(Query.Direction direction){
+        if(direction == null){
+            view.setFilterOrder(ApplicationController.getInstance().getString(R.string.newest));
+        }else{
+            if(direction == Query.Direction.ASCENDING) view.setFilterOrder(ApplicationController.getInstance().getString(R.string.from_cheapest));
+            else view.setFilterOrder(ApplicationController.getInstance().getString(R.string.from_most_expensive));
+        }
+    }
+
+    private void updateLikes(){
+        ArrayList<Object> items = view.getItems();
+        for (int i =0;i<items.size();i++) {
+            Object object = items.get(i);
+            if (object instanceof Item) {
+                if (DataMediator.getLike(((Item) object).id) != null) {
+                    ((Item) object).isLiked = true;
+                    view.getAdapter().notifyItemChanged(i);
+                }else{
+                    ((Item) object).isLiked = false;
+                    view.getAdapter().notifyItemChanged(i);
+                }
+            }
+        }
+    }
+
+    void checkNewMessages(){
+        FirebaseFirestore.getInstance().collection("dialogs")
+                .whereEqualTo("user1Id", DataMediator.getUser().id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            querySnapshot1 = task.getResult();
+                            firstDialogLoaded = true;
+                            onDialogLoaded();
+                        } else {
+                            querySnapshot1 = null;
+                            firstDialogLoaded = true;
+                        }
+                    }
+                });
+
+        FirebaseFirestore.getInstance().collection("dialogs")
+                .whereEqualTo("user2Id", DataMediator.getUser().id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            querySnapshot2 = task.getResult();
+                            secondDialogLoaded = true;
+                            onDialogLoaded();
+                        } else {
+                            querySnapshot2 = null;
+                            secondDialogLoaded = true;
+                        }
+                    }
+                });
+    }
+
+    private void onDialogLoaded() {
+        if (firstDialogLoaded && secondDialogLoaded && querySnapshot1 != null && querySnapshot2 != null) {
+            ArrayList<Dialog> dialogs = new ArrayList<>();
+            int unreadMessages = 0;
+            for (DocumentSnapshot document : querySnapshot1) {
+                Dialog dialog = ConvertHelper.convertToDialog(document);
+                if (dialog.user1Id.equals(dialog.user2Id)) continue;
+                if(dialog.user1HasUnreadMessage) unreadMessages++;
+                dialogs.add(dialog);
+            }
+            for (DocumentSnapshot document : querySnapshot2) {
+                Dialog dialog = ConvertHelper.convertToDialog(document);
+                if (dialog.user1Id.equals(dialog.user2Id)) continue;
+                if(dialog.user2HasUnreadMessage) unreadMessages++;
+                dialogs.add(dialog);
+            }
+
+            DataMediator.setDialogs(dialogs);
+
+            if (unreadMessages == 0) {
+                view.setUnreadMessagesCount(null);
+            }else{
+                view.setUnreadMessagesCount(String.valueOf(unreadMessages));
+            }
+
+        }
     }
 }

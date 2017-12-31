@@ -131,18 +131,18 @@
 
             <Button
                 android:id="@+id/item_details_contact_button"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:background="@color/color_accent"
                 android:padding="8dp"
                 android:text="@string/contact"
-                android:textColor="@color/icons"
-                android:textSize="14sp" />
+                android:textColor="@color/color_accent"
+                android:textSize="15sp" />
 
         </RelativeLayout>
 

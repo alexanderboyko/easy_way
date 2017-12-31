@@ -1,7 +1,6 @@
 package boyko.alex.easy_way.frontend.explore;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -14,10 +13,13 @@ import java.util.ArrayList;
 
 import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
+import boyko.alex.easy_way.backend.models.Address;
 import boyko.alex.easy_way.backend.models.Item;
 
 /**
  * Created by Sasha on 05.11.2017.
+ *
+ * Explore uploading here
  */
 
 class ExploreModel {
@@ -28,7 +30,8 @@ class ExploreModel {
     private DocumentSnapshot lastLoadedItem;
     private boolean allDataLoaded = false;
 
-    private String categoryId, addressId;
+    private String categoryId;
+    private Address address;
     private double priceFrom, priceTo;
     private Query.Direction order;
 
@@ -51,8 +54,8 @@ class ExploreModel {
         if (categoryId != null) {
             query = query.whereEqualTo("categoryId", categoryId);
         }
-        if (addressId != null) {
-            query = query.whereEqualTo("address.id", addressId);
+        if (address != null) {
+            query = query.whereEqualTo("address.id", address.id);
         }
 
         if (priceFrom != 0 || priceTo != 0) {
@@ -125,8 +128,6 @@ class ExploreModel {
                     if (items.size() >= 20) items.add("loading");
                     else allDataLoaded = true;
                     loadingFinished(items);
-                } else {
-                    Log.w(LOG_TAG, "Error getting documents.", task.getException());
                 }
             }
         });
@@ -154,8 +155,6 @@ class ExploreModel {
                         } else {
                             allDataLoaded = false;
                         }
-                    } else {
-                        Log.w(LOG_TAG, "Error getting documents.", task.getException());
                     }
                 }
             });
@@ -189,36 +188,37 @@ class ExploreModel {
         return categoryId;
     }
 
-    void setCategoryId(String categoryId) {
-        this.categoryId = categoryId;
+    public Address getAddress() {
+        return address;
     }
 
-    String getAddressId() {
-        return addressId;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
-    void setAddressId(String addressId) {
-        this.addressId = addressId;
-    }
 
     double getPriceFrom() {
         return priceFrom;
-    }
-
-    void setPriceFrom(double priceFrom) {
-        this.priceFrom = priceFrom;
     }
 
     double getPriceTo() {
         return priceTo;
     }
 
-    void setPriceTo(double priceTo) {
-        this.priceTo = priceTo;
-    }
-
     Query.Direction getOrder() {
         return order;
+    }
+
+    void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    void setPriceFrom(double priceFrom) {
+        this.priceFrom = priceFrom;
+    }
+
+    void setPriceTo(double priceTo) {
+        this.priceTo = priceTo;
     }
 
     void setOrder(Query.Direction order) {

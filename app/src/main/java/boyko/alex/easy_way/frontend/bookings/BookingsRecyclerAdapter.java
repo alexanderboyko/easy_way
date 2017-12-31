@@ -70,7 +70,7 @@ class BookingsRecyclerAdapter extends RecyclerView.Adapter<BookingsRecyclerAdapt
     }
     @Override
     public BookingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new BookingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_booking_reserved, parent, false));
+        return new BookingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_booking, parent, false));
     }
 
     @Override
@@ -81,7 +81,9 @@ class BookingsRecyclerAdapter extends RecyclerView.Adapter<BookingsRecyclerAdapt
         setDates(holder, booking);
         setStatus(holder, booking);
         holder.title.setText(booking.itemTitle);
-        holder.price.setText(String.valueOf(booking.price));
+
+        String price = String.valueOf(booking.price) + " zł";
+        holder.price.setText(price);
 
         if (mode == MODE_MY_BOOKINGS) {
             setButtonsMyBooking(holder, booking);
@@ -145,15 +147,19 @@ class BookingsRecyclerAdapter extends RecyclerView.Adapter<BookingsRecyclerAdapt
     private void setDates(BookingHolder holder, Booking booking) {
         PriceType priceType = DataMediator.getPriceType(booking.priceTypeId);
         if (priceType != null && priceType.shortName.equals("/day")) {
-            holder.dates.setText(
-                    DateHelper.getFormattedDateWithoutTime(booking.startedAt)
-                            + " - "
-                            + DateHelper.getFormattedDateWithoutTime(booking.endAt));
+            if(DateHelper.ifTimesFromOneDay(booking.startedAt, booking.endAt)){
+                holder.dates.setText(DateHelper.getSmartFormattedDate(booking.startedAt));
+            }else {
+                holder.dates.setText(
+                        DateHelper.getSmartFormattedDate(booking.startedAt)
+                                + " - "
+                                + DateHelper.getSmartFormattedDate(booking.endAt));
+            }
         } else {
             holder.dates.setText(
-                    DateHelper.getFormattedDateWithTime(booking.startedAt)
+                    DateHelper.getSmartFormattedDateWithTime(booking.startedAt)
                             + " - "
-                            + DateHelper.getFormattedDateWithTime(booking.endAt));
+                            + DateHelper.getSmartFormattedDateWithTime(booking.endAt));
         }
     }
 

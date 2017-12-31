@@ -264,7 +264,6 @@ public class DateHelper {
      * @return smart formatted string
      */
     public static String getFormattedTimeFromCurrentTime(long time, boolean isAllDay) {
-        Log.i("FORMATTEDTIME", getFormattedDateWithoutTime(time) + " " + isAllDay);
         Calendar calendar = Calendar.getInstance();
         Calendar calendar1 = Calendar.getInstance();
         calendar1.setTimeInMillis(time);
@@ -599,7 +598,7 @@ public class DateHelper {
         Calendar calendarTo = Calendar.getInstance();
         calendarTo.setTimeInMillis(to);
 
-        int hours = 1;
+        int hours = 0;
         while(true){
             if(calendarFrom.get(Calendar.HOUR_OF_DAY) == calendarTo.get(Calendar.HOUR_OF_DAY)){
                 return hours;

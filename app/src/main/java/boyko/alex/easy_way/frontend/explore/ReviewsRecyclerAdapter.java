@@ -2,6 +2,7 @@ package boyko.alex.easy_way.frontend.explore;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,20 +34,28 @@ public class ReviewsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public static final int MODE_ITEM_DETAILS = 0;
     private ArrayList<Review> reviews;
     private int mode;
+    private OnReviewClickListener listener;
 
-    public ReviewsRecyclerAdapter(int mode){
+    public interface OnReviewClickListener{
+        void onUserClicked(int position);
+    }
+
+    public ReviewsRecyclerAdapter(int mode) {
         this.mode = mode;
         reviews = new ArrayList<>();
     }
 
-    public ArrayList<Review> getReviews(){
+    public ArrayList<Review> getReviews() {
         return reviews;
     }
 
-    public void setReviews(ArrayList<Review> reviews){
+    public void setReviews(ArrayList<Review> reviews) {
         this.reviews = reviews;
     }
 
+    public void setListener(OnReviewClickListener listener){
+        this.listener = listener;
+    }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
@@ -62,8 +71,8 @@ public class ReviewsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Review review = reviews.get(position);
 
-        if(mode == MODE_ITEM_DETAILS){
-            bindItemDetailsReview((ReviewHolder)holder, review);
+        if (mode == MODE_ITEM_DETAILS) {
+            bindItemDetailsReview((ReviewHolder) holder, review);
         }
     }
 
@@ -72,10 +81,11 @@ public class ReviewsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         return reviews.size();
     }
 
-    private void bindItemDetailsReview(final ReviewHolder holder, Review review){
-        if(review.userName != null) holder.userName.setText(review.userName);
-        if(review.createdAt != 0) holder.date.setText(DateHelper.getFormattedDateWithTime(review.createdAt));
-        if(review.text != null) holder.text.setText(review.text);
+    private void bindItemDetailsReview(final ReviewHolder holder, Review review) {
+        if (review.userName != null) holder.userName.setText(review.userName);
+        if (review.createdAt != 0)
+            holder.date.setText(DateHelper.getSmartFormattedDate(review.createdAt));
+        if (review.text != null) holder.text.setText(review.text);
         if (review.userPhoto != null) {
             holder.userPhoto.setVisibility(View.VISIBLE);
             holder.userNoPhotoLayout.setVisibility(View.GONE);
@@ -99,16 +109,66 @@ public class ReviewsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         }
                     })
                     .into(holder.userPhoto);
-        }else{
+        } else {
             holder.userPhoto.setVisibility(View.GONE);
             holder.userNoPhotoLayout.setVisibility(View.VISIBLE);
         }
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(listener != null) listener.onUserClicked(holder.getAdapterPosition());
+            }
+        };
+        holder.userNoPhotoLayout.setOnClickListener(onClickListener);
+        holder.userPhoto.setOnClickListener(onClickListener);
+        holder.userName.setOnClickListener(onClickListener);
+
+        switch (review.mark) {
+            case 1:
+                holder.star1.setVisibility(View.VISIBLE);
+                holder.star2.setVisibility(View.GONE);
+                holder.star3.setVisibility(View.GONE);
+                holder.star4.setVisibility(View.GONE);
+                holder.star5.setVisibility(View.GONE);
+                break;
+            case 2:
+                holder.star1.setVisibility(View.VISIBLE);
+                holder.star2.setVisibility(View.VISIBLE);
+                holder.star3.setVisibility(View.GONE);
+                holder.star4.setVisibility(View.GONE);
+                holder.star5.setVisibility(View.GONE);
+                break;
+            case 3:
+                holder.star1.setVisibility(View.VISIBLE);
+                holder.star2.setVisibility(View.VISIBLE);
+                holder.star3.setVisibility(View.VISIBLE);
+                holder.star4.setVisibility(View.GONE);
+                holder.star5.setVisibility(View.GONE);
+                break;
+            case 4:
+                holder.star1.setVisibility(View.VISIBLE);
+                holder.star2.setVisibility(View.VISIBLE);
+                holder.star3.setVisibility(View.VISIBLE);
+                holder.star4.setVisibility(View.VISIBLE);
+                holder.star5.setVisibility(View.GONE);
+                break;
+            case 5:
+                holder.star1.setVisibility(View.VISIBLE);
+                holder.star2.setVisibility(View.VISIBLE);
+                holder.star3.setVisibility(View.VISIBLE);
+                holder.star4.setVisibility(View.VISIBLE);
+                holder.star5.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
-    private class ReviewHolder extends RecyclerView.ViewHolder{
+    private class ReviewHolder extends RecyclerView.ViewHolder {
         CircleImageView userPhoto;
         LinearLayout userNoPhotoLayout;
         TextView userName, date, text;
+        AppCompatImageView star1, star2, star3, star4, star5;
+
         ReviewHolder(View itemView) {
             super(itemView);
             userPhoto = itemView.findViewById(R.id.item_review_user_photo);
@@ -116,6 +176,11 @@ public class ReviewsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             userName = itemView.findViewById(R.id.item_review_user_name);
             date = itemView.findViewById(R.id.item_review_date);
             text = itemView.findViewById(R.id.item_review_text);
+            star1 = itemView.findViewById(R.id.item_review_star1);
+            star2 = itemView.findViewById(R.id.item_review_star2);
+            star3 = itemView.findViewById(R.id.item_review_star3);
+            star4 = itemView.findViewById(R.id.item_review_star4);
+            star5 = itemView.findViewById(R.id.item_review_star5);
         }
     }
 }

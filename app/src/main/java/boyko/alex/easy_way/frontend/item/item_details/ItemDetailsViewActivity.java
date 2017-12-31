@@ -24,13 +24,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 
 import org.parceler.Parcels;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -44,14 +50,17 @@ import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.backend.models.User;
 import boyko.alex.easy_way.frontend.custom_views.AvailabilityCalendar;
-import boyko.alex.easy_way.frontend.explore.BookingsInfoRecyclerAdapter;
 import boyko.alex.easy_way.frontend.explore.ItemsRecyclerAdapter;
 import boyko.alex.easy_way.frontend.explore.ReviewsRecyclerAdapter;
-import boyko.alex.easy_way.frontend.item.item_details.first_time_contact.FirstTimeContactActivity;
+import boyko.alex.easy_way.frontend.gallery.GalleryFragment;
+import boyko.alex.easy_way.frontend.item.item_details.contact.ContactActivity;
+import boyko.alex.easy_way.frontend.profile.details.ProfileViewActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Sasha on 10.11.2017.
+ * <p>
+ * Item details here
  */
 
 public class ItemDetailsViewActivity extends AppCompatActivity {
@@ -62,7 +71,7 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     private AppCompatImageView photo;
     private AppBarLayout appBarLayout;
 
-    private TextView title, location, ownerName, description, notesLabel, notes, price, rating, reviewsReadOtherButton, reviewsEmptyMessage, similarItemsEmptyMessage;
+    private TextView title, location, ownerName, description, notesLabel, notes, price, rating, reviewsEmptyMessage, similarItemsEmptyMessage;
     private Button contactButton;
     private CircleImageView ownerPhoto;
     private LinearLayout noOwnerPhotoLayout, noItemPhotoLayout;
@@ -94,15 +103,19 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
 
         init();
 
-        item = Parcels.unwrap(getIntent().getParcelableExtra("item"));
-        if (item != null) ItemDetailsPresenter.getInstance(this).startLoading(item);
-
+        ItemDetailsPresenter.getInstance(this).onCreate(savedInstanceState);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ItemDetailsPresenter.getInstance(this).onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -122,6 +135,16 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
                 ItemDetailsPresenter.getInstance(ItemDetailsViewActivity.this).onLikeClicked(this.item);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("item", Parcels.wrap(item));
+        outState.putParcelable("similarItems", Parcels.wrap(similarItemsAdapter.getItems()));
+        outState.putParcelable("bookings", Parcels.wrap(bookings));
+        outState.putParcelable("owner", Parcels.wrap(owner));
+        outState.putParcelable("reviews", Parcels.wrap(reviewsRecyclerAdapter.getReviews()));
+        super.onSaveInstanceState(outState);
     }
 
     private void init() {
@@ -152,7 +175,6 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         notesLabel = findViewById(R.id.item_details_content).findViewById(R.id.item_details_notes_label);
         notes = findViewById(R.id.item_details_content).findViewById(R.id.item_details_notes);
         reviewsRecycler = findViewById(R.id.item_details_content).findViewById(R.id.item_details_reviews_recycler);
-        reviewsReadOtherButton = findViewById(R.id.item_details_content).findViewById(R.id.item_details_reviews_read_others);
         reviewsEmptyMessage = findViewById(R.id.item_details_content).findViewById(R.id.item_details_reviews_empty_message);
         similarItemsEmptyMessage = findViewById(R.id.item_details_content).findViewById(R.id.item_details_see_also_empty_message);
         similarItemsRecycler = findViewById(R.id.item_details_content).findViewById(R.id.item_details_see_also_recycler);
@@ -191,23 +213,23 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                    if(!toolbar.getTag().equals(0)) {
+                    if (!toolbar.getTag().equals(0)) {
                         if (toolbar.getNavigationIcon() != null) {
                             toolbar.getNavigationIcon().setColorFilter
                                     (ContextCompat.getColor(ItemDetailsViewActivity.this, R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
                             transitionDrawable.reverseTransition(200);
                             toolbar.setTag(0);
-                            setLikeIcon(item.isLiked);
+                            if (item != null) setLikeIcon(item.isLiked);
                         }
                     }
                 } else {
-                    if(!toolbar.getTag().equals(1)) {
+                    if (!toolbar.getTag().equals(1)) {
                         if (toolbar.getNavigationIcon() != null) {
                             toolbar.getNavigationIcon().setColorFilter
                                     (ContextCompat.getColor(ItemDetailsViewActivity.this, R.color.icons), PorterDuff.Mode.SRC_ATOP);
                             transitionDrawable.reverseTransition(200);
                             toolbar.setTag(1);
-                            setLikeIcon(item.isLiked);
+                            if (item != null) setLikeIcon(item.isLiked);
                         }
                     }
                 }
@@ -220,12 +242,12 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         similarItemsAdapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
-                //todo
+                launchItemDetailsActivity((Item) similarItemsAdapter.getItems().get(position));
             }
 
             @Override
             public void onLikeClicked(int position) {
-
+                ItemDetailsPresenter.getInstance(ItemDetailsViewActivity.this).onSimilarItemLikeClicked(similarItemsAdapter, position, item);
             }
 
             @Override
@@ -248,6 +270,12 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         reviewsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         reviewsRecyclerAdapter = new ReviewsRecyclerAdapter(ReviewsRecyclerAdapter.MODE_ITEM_DETAILS);
+        reviewsRecyclerAdapter.setListener(new ReviewsRecyclerAdapter.OnReviewClickListener() {
+            @Override
+            public void onUserClicked(int position) {
+                launchProfileActivity(reviewsRecyclerAdapter.getReviews().get(position).userId);
+            }
+        });
         reviewsRecycler.setAdapter(reviewsRecyclerAdapter);
     }
 
@@ -325,19 +353,50 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         });
     }
 
-    void setItemPhoto(String photoUrl) {
+    void setItem(Item item) {
+        this.item = item;
+    }
+
+    void setItemPhoto(final ArrayList<String> photos) {
+        String photoUrl = null;
+        if (photos != null && !photos.isEmpty()) photoUrl = photos.get(0);
+
         if (photoUrl == null) {
             noItemPhotoLayout.setVisibility(View.VISIBLE);
             photo.setVisibility(View.GONE);
         } else {
             noItemPhotoLayout.setVisibility(View.GONE);
             photo.setVisibility(View.VISIBLE);
-            Glide.with(ApplicationController.getInstance())
-                    .load(photoUrl)
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                    .apply(RequestOptions.noTransformation())
-                    .into(photo);
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(photoUrl))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                noItemPhotoLayout.setVisibility(View.VISIBLE);
+                                photo.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(photo);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            photo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    launchFullscreenGallery(photos, 0);
+                }
+            });
         }
     }
 
@@ -353,25 +412,39 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         this.location.setText(location);
     }
 
-    void setOwner(User owner) {
+    void setOwner(final User owner) {
         this.owner = owner;
         if (owner != null) {
             this.ownerName.setText(owner.getFullName());
             if (owner.photo != null && !owner.photo.isEmpty()) {
                 ownerPhoto.setVisibility(View.VISIBLE);
                 noOwnerPhotoLayout.setVisibility(View.GONE);
-                Glide.with(ApplicationController.getInstance())
-                        .load(owner.photo)
-                        .apply(RequestOptions.fitCenterTransform())
-                        .apply(RequestOptions.skipMemoryCacheOf(true))
-                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                        .apply(RequestOptions.noTransformation())
-                        .into(ownerPhoto);
+                try {
+                    Glide.with(ApplicationController.getInstance())
+                            .load(new URL(owner.photo))
+                            .apply(RequestOptions.skipMemoryCacheOf(true))
+                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                            .apply(RequestOptions.noTransformation())
+                            .into(ownerPhoto);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             } else {
                 ownerPhoto.setVisibility(View.GONE);
                 noOwnerPhotoLayout.setVisibility(View.VISIBLE);
             }
         }
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ItemDetailsViewActivity.this.owner != null && ItemDetailsViewActivity.this.owner.id != null)
+                    launchProfileActivity(ItemDetailsViewActivity.this.owner.id);
+            }
+        };
+        noOwnerPhotoLayout.setOnClickListener(onClickListener);
+        ownerPhoto.setOnClickListener(onClickListener);
+        ownerName.setOnClickListener(onClickListener);
     }
 
     void setDescription(String description) {
@@ -402,6 +475,23 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         this.bookings = bookings;
     }
 
+    void setAddress(String address){
+        this.location.setText(address);
+    }
+
+    void addBooking(Booking booking) {
+        bookings.add(booking);
+
+    }
+
+    Item getItem() {
+        return item;
+    }
+
+    ItemsRecyclerAdapter getSimilarItemsAdapter() {
+        return similarItemsAdapter;
+    }
+
     void setReviews(ArrayList<Review> reviews) {
         reviewsRecyclerAdapter.setReviews(reviews);
         reviewsRecyclerAdapter.notifyItemRangeInserted(0, reviews.size());
@@ -415,8 +505,17 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         similarItemsAdapter.notifyItemRangeInserted(0, items.size());
     }
 
+    void setSimilarObjectItems(ArrayList<Object> similarItems) {
+        similarItemsAdapter.setItems(similarItems);
+        similarItemsAdapter.notifyItemRangeInserted(0, similarItems.size());
+    }
+
     void setEvents(ArrayList<Event> events) {
         calendarView.removeAllEvents();
+        calendarView.addEvents(events);
+    }
+
+    void addEvents(ArrayList<Event> events) {
         calendarView.addEvents(events);
     }
 
@@ -430,6 +529,10 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
 
     void setCalendarButtonSwipeMonthRightVisibility(int visibility) {
         calendarButtonSwipeMonthRight.setVisibility(visibility);
+    }
+
+    void setContactButtonVisibility(int visibility) {
+        contactButton.setVisibility(visibility);
     }
 
     void openBottomSheet() {
@@ -459,7 +562,6 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
 
     void setReviewsListVisibility(int visibility) {
         reviewsRecycler.setVisibility(visibility);
-        reviewsReadOtherButton.setVisibility(visibility);
     }
 
     void setSimilarItemsEmptyMessageVisibility(int visibility) {
@@ -473,9 +575,10 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
     void setLikeIcon(boolean isLiked) {
         item.isLiked = isLiked;
 
-        if(isLiked) toolbarLikeIcon = R.drawable.ic_favorite_red_24px;
+        if (isLiked) toolbarLikeIcon = R.drawable.ic_favorite_red_24px;
         else {
-            if(toolbar.getTag().equals(1)) toolbarLikeIcon = R.drawable.ic_favorite_border_white_24px;
+            if (toolbar.getTag().equals(1))
+                toolbarLikeIcon = R.drawable.ic_favorite_border_white_24px;
             else toolbarLikeIcon = R.drawable.ic_favorite_border_black_24px;
         }
         invalidateOptionsMenu();
@@ -489,11 +592,33 @@ public class ItemDetailsViewActivity extends AppCompatActivity {
         toast.show();
     }
 
-    void launchFirstContactActivity(){
-        Intent intent = new Intent(ItemDetailsViewActivity.this, FirstTimeContactActivity.class);
+    void launchFirstContactActivity() {
+        Intent intent = new Intent(ItemDetailsViewActivity.this, ContactActivity.class);
         intent.putExtra("bookings", Parcels.wrap(bookings));
         intent.putExtra("item", Parcels.wrap(item));
         intent.putExtra("itemOwner", Parcels.wrap(owner));
         startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
+    }
+
+    void launchFullscreenGallery(ArrayList<String> images, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("images", images);
+        bundle.putInt("position", position);
+
+        GalleryFragment newFragment = GalleryFragment.newInstance();
+        newFragment.setArguments(bundle);
+        newFragment.show(getFragmentManager(), "fullscreenGallery");
+    }
+
+    void launchItemDetailsActivity(Item itemBase) {
+        Intent intent = new Intent(this, ItemDetailsViewActivity.class);
+        intent.putExtra("item", Parcels.wrap(itemBase));
+        startActivity(intent);
+    }
+
+    void launchProfileActivity(String userId) {
+        Intent intent = new Intent(this, ProfileViewActivity.class);
+        intent.putExtra("userId", userId);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_DETAILS);
     }
 }

@@ -44,6 +44,8 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 import org.parceler.Parcels;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import boyko.alex.easy_way.ApplicationController;
@@ -59,9 +61,7 @@ import boyko.alex.easy_way.frontend.item.item_details.ItemDetailsViewActivity;
 import boyko.alex.easy_way.frontend.item.item_edit.AddItemViewActivity;
 import boyko.alex.easy_way.frontend.liked_items.LikedItemsViewActivity;
 import boyko.alex.easy_way.frontend.my_offers.MyOffersViewActivity;
-import boyko.alex.easy_way.frontend.profile.edit.EditProfileViewActivity;
 import boyko.alex.easy_way.frontend.profile.details.ProfileViewActivity;
-import boyko.alex.easy_way.frontend.search.SearchViewActivity;
 import boyko.alex.easy_way.frontend.settings.SettingsActivityView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -99,10 +99,12 @@ public class ExploreViewActivity extends AppCompatActivity {
     private LinearLayout filtersViewCards, filtersViewList;
 
     //navigationview
-    private TextView userFullName, userEmail;
+    private TextView userFullName, userEmail, inboxUnreadMessages;
     private CircleImageView userPhoto;
     private LinearLayout userNoPhotoLayout;
     private RelativeLayout userLayout;
+
+    private Thread thread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -155,6 +157,7 @@ public class ExploreViewActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        ExplorePresenter.getInstance(this).onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -163,6 +166,16 @@ public class ExploreViewActivity extends AppCompatActivity {
         if (ExplorePresenter.getInstance(this).onBackPressed()) {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        try {
+            thread.interrupt();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 
     private void init() {
@@ -177,6 +190,7 @@ public class ExploreViewActivity extends AppCompatActivity {
         initShadow();
         initSwipeRefreshLayout();
         initUser();
+        initAutoUpdateThread();
     }
 
     private void initViews() {
@@ -213,6 +227,7 @@ public class ExploreViewActivity extends AppCompatActivity {
         userLayout = findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_header_layout);
         userNoPhotoLayout = findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_header_no_photo_layout);
         userPhoto = findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_header_user_photo);
+        inboxUnreadMessages = findViewById(R.id.explore_navigation_view).findViewById(R.id.nav_inbox_count);
     }
 
     private void initToolbar() {
@@ -337,6 +352,7 @@ public class ExploreViewActivity extends AppCompatActivity {
 
     private void initAdapter() {
         adapter = new ItemsRecyclerAdapter(ItemsRecyclerAdapter.MODE_GRID);
+        adapter.setItems(new ArrayList<>());
         adapter.setOnItemClickListener(new ItemsRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(int position) {
@@ -345,7 +361,10 @@ public class ExploreViewActivity extends AppCompatActivity {
 
             @Override
             public void onLikeClicked(int position) {
+                ExplorePresenter.getInstance(ExploreViewActivity.this).onLikeClicked(((Item) adapter.getItems().get(position)).id);
 
+                ((Item) adapter.getItems().get(position)).isLiked = !((Item) adapter.getItems().get(position)).isLiked;
+                adapter.notifyItemChanged(position);
             }
 
             @Override
@@ -434,6 +453,7 @@ public class ExploreViewActivity extends AppCompatActivity {
             public void onClick(View view) {
                 launchInboxActivity();
                 drawerLayout.closeDrawer(Gravity.START);
+                inboxUnreadMessages.setVisibility(View.GONE);
             }
         });
 
@@ -490,34 +510,38 @@ public class ExploreViewActivity extends AppCompatActivity {
         });
     }
 
-    private void initUser(){
+    void initUser() {
         User user = DataMediator.getUser();
 
         userFullName.setText(user.getFullName());
         userEmail.setText(user.email);
-        if(user.photo != null){
+        if (user.photo != null) {
             userPhoto.setVisibility(View.VISIBLE);
             userNoPhotoLayout.setVisibility(View.GONE);
-            Glide.with(ApplicationController.getInstance())
-                    .load(user.photo)
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                    .apply(RequestOptions.noTransformation())
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            userPhoto.setVisibility(View.GONE);
-                            userNoPhotoLayout.setVisibility(View.VISIBLE);
-                            return false;
-                        }
+            try {
+                Glide.with(ApplicationController.getInstance())
+                        .load(new URL(user.photo))
+                        .apply(RequestOptions.skipMemoryCacheOf(true))
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                        .apply(RequestOptions.noTransformation())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                userPhoto.setVisibility(View.GONE);
+                                userNoPhotoLayout.setVisibility(View.VISIBLE);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(userPhoto);
-        }else{
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(userPhoto);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else {
             userPhoto.setVisibility(View.GONE);
             userNoPhotoLayout.setVisibility(View.VISIBLE);
         }
@@ -533,6 +557,29 @@ public class ExploreViewActivity extends AppCompatActivity {
         userNoPhotoLayout.setOnClickListener(onProfileClicked);
         userPhoto.setOnClickListener(onProfileClicked);
     }
+
+    private void initAutoUpdateThread() {
+        thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(5000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ExplorePresenter.getInstance(ExploreViewActivity.this).checkNewMessages();
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
+
     /**
      * Init drawer toggle to animate toolbar hamburger
      */
@@ -554,8 +601,28 @@ public class ExploreViewActivity extends AppCompatActivity {
         adapter.notifyItemRangeInserted(adapter.getItemCount() - items.size(), items.size());
     }
 
+    ArrayList<Object> getItems() {
+        return adapter.getItems();
+    }
+
+    ItemsRecyclerAdapter getAdapter() {
+        return adapter;
+    }
+
+    int getMode() {
+        return adapter.getMode();
+    }
+
     View shadow() {
         return shadow;
+    }
+
+    void setUnreadMessagesCount(String count) {
+        if (count == null) inboxUnreadMessages.setVisibility(View.GONE);
+        else {
+            inboxUnreadMessages.setVisibility(View.VISIBLE);
+            inboxUnreadMessages.setText(count);
+        }
     }
 
     BottomSheetBehavior bottomSheetBehavior() {
@@ -653,17 +720,18 @@ public class ExploreViewActivity extends AppCompatActivity {
         toast.show();
     }
 
-    void setLoading(boolean isLoading){
-        if(isLoading){
+    void setLoading(boolean isLoading) {
+        if (isLoading) {
             shadow.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
-        }else{
-            if(bottomSheetFiltersBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) shadow.setVisibility(View.GONE);
+        } else {
+            if (bottomSheetFiltersBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED)
+                shadow.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
         }
     }
 
-    void setNoItemsMessageVisibility(int visibility){
+    void setNoItemsMessageVisibility(int visibility) {
         noItemsMessage.setVisibility(visibility);
     }
 
@@ -694,55 +762,45 @@ public class ExploreViewActivity extends AppCompatActivity {
         startActivityForResult(intent, RequestCodes.REQUEST_CODE_SELECT);
     }
 
-    void launchSearchActivity() {
-        Intent intent = new Intent(this, SearchViewActivity.class);
-        startActivity(intent);
-    }
-
     void launchItemDetailsActivity(Item itemBase) {
         Intent intent = new Intent(this, ItemDetailsViewActivity.class);
         intent.putExtra("item", Parcels.wrap(itemBase));
-        startActivity(intent);
-    }
-
-    void launchEditProfileActivity() {
-        Intent intent = new Intent(this, EditProfileViewActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_DETAILS);
     }
 
     void launchAddItemActivity() {
         Intent intent = new Intent(this, AddItemViewActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
     }
 
     void launchSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivityView.class);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_SETTINGS);
     }
 
-    void launchProfileActivity(){
+    void launchProfileActivity() {
         Intent intent = new Intent(this, ProfileViewActivity.class);
         intent.putExtra("userId", DataMediator.getUser().id);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_DETAILS);
     }
 
-    void launchInboxActivity(){
+    void launchInboxActivity() {
         Intent intent = new Intent(this, InboxViewActivity.class);
         startActivity(intent);
     }
 
-    void launchMyOffersActivity(){
+    void launchMyOffersActivity() {
         Intent intent = new Intent(this, MyOffersViewActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_EDIT);
     }
 
-    void launchBookingsActivity(){
+    void launchBookingsActivity() {
         Intent intent = new Intent(this, BookingsViewActivity.class);
         startActivity(intent);
     }
 
-    void launchSavedItemsActivity(){
+    void launchSavedItemsActivity() {
         Intent intent = new Intent(this, LikedItemsViewActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, RequestCodes.REQUEST_CODE_DETAILS);
     }
 }

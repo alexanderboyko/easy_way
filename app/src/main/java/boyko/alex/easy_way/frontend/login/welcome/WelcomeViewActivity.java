@@ -13,7 +13,6 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -332,7 +331,7 @@ public class WelcomeViewActivity extends AppCompatActivity {
                             } catch (FirebaseAuthInvalidCredentialsException | FirebaseAuthUserCollisionException e) {
                                 showSignInError(e.getMessage());
                             } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getMessage());
+                                //Log.e(LOG_TAG, e.getMessage());
                             }
                             // If sign in fails, display a message to the user.
                             if (task.getException() != null && task.getException().getMessage() != null)

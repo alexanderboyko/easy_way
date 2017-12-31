@@ -152,7 +152,7 @@ public class LikedItemsViewActivity extends AppCompatActivity {
 
             @Override
             public void onLikeClicked(int position) {
-
+                LikedItemsViewActivity.this.onLikeClicked(position);
             }
 
             @Override
@@ -299,6 +299,38 @@ public class LikedItemsViewActivity extends AppCompatActivity {
         adapter.notifyItemRangeInserted(adapter.getItemCount(), items.size());
 
         isNextItemLoading = false;
+    }
+
+    void onLikeClicked(int position) {
+        Item item = (Item)adapter.getItems().get(position);
+
+        if (DataMediator.getLike(item.id) == null) {
+            final Like like1 = new Like();
+            like1.itemId = item.id;
+            like1.userId = DataMediator.getUser().id;
+            FirebaseFirestore.getInstance().collection("likes").add(like1).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    if(task.isSuccessful()){
+                        like1.id = task.getResult().getId();
+                        DataMediator.getLikes().add(like1);
+                    }
+                }
+            });
+        }else{
+            Like like = DataMediator.getLike(item.id);
+            if(like != null && like.id != null) {
+                DataMediator.removeLike(like.id);
+                FirebaseFirestore.getInstance().collection("likes").document(like.id).delete();
+            }
+        }
+
+        if(item.isLiked){
+            adapter.getItems().remove(position);
+            adapter.notifyItemRemoved(position);
+
+            if(adapter.getItemCount() == 0) showEmptyMessage();
+        }
     }
 
     void launchItemDetailsActivity(Item item) {
