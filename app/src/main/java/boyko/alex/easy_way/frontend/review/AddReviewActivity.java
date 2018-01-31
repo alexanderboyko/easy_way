@@ -17,14 +17,17 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.parceler.Parcels;
 
 import boyko.alex.easy_way.R;
+import boyko.alex.easy_way.backend.ConvertHelper;
 import boyko.alex.easy_way.backend.DataMediator;
 import boyko.alex.easy_way.backend.RequestCodes;
 import boyko.alex.easy_way.backend.models.Booking;
+import boyko.alex.easy_way.backend.models.Item;
 import boyko.alex.easy_way.backend.models.Review;
 import boyko.alex.easy_way.libraries.DateHelper;
 
@@ -190,11 +193,34 @@ public class AddReviewActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (task.isSuccessful()) {
-                    setResult(RequestCodes.RESULT_CODE_OK);
-                    finish();
+                    updateItemRating();
                 } else {
                     Toast.makeText(AddReviewActivity.this, getString(R.string.error_message), Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+    }
+
+    private void updateItemRating() {
+        FirebaseFirestore.getInstance().collection("items").document(itemId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Item item = ConvertHelper.convertToItem(task.getResult());
+                    if (item != null) {
+                        item.ratingCount++;
+                        item.ratingSum += mark;
+                        item.ratingAverage = item.ratingSum / item.ratingCount;
+
+                        FirebaseFirestore.getInstance().collection("items").document(itemId)
+                                .update("ratingCount", item.ratingCount,
+                                        "ratingSum", item.ratingSum,
+                                        "ratingAverage", item.ratingAverage);
+                    }
+                }
+
+                setResult(RequestCodes.RESULT_CODE_OK);
+                finish();
             }
         });
     }

@@ -58,6 +58,7 @@ public class ConvertHelper {
             item.price = document.getDouble("price");
             item.ratingSum = document.getDouble("ratingSum");
             item.ratingAverage = document.getDouble("ratingAverage");
+            item.ratingCount = Integer.parseInt(String.valueOf(document.getLong("ratingCount")));
             item.categoryId = document.getString("categoryId");
             item.priceTypeId = document.getString("priceTypeId");
             item.createdAt = document.getLong("createdAt");

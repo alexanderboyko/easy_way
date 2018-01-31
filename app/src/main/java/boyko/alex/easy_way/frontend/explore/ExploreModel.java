@@ -23,7 +23,6 @@ import boyko.alex.easy_way.backend.models.Item;
  */
 
 class ExploreModel {
-    private final String LOG_TAG = getClass().getSimpleName();
     private ExplorePresenter presenter;
     private static ExploreModel model;
     private Query query;

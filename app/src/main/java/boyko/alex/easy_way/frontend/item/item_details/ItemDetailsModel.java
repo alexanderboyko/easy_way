@@ -56,24 +56,26 @@ class ItemDetailsModel {
                         if (task.isSuccessful()) {
                             Item item = ConvertHelper.convertToItem(task.getResult());
                             presenter.setItem(item);
-                            loadBookings(item);
-                            loadReviews(item);
-                            loadSimilarItems(item);
-                            loadOwner(item);
-                            if(item != null)loadAddressById(item.address.id);
-                        } else {
-                            //// TODO: 29.12.2017 error
+                            if(item != null) {
+                                loadBookings(item);
+                                loadReviews(item);
+                                loadSimilarItems(item);
+                                loadOwner(item);
+                                loadAddressById(item.address.id);
+                            }
                         }
                     }
                 });
     }
 
     void startLoading(Item item) {
-        loadBookings(item);
-        loadReviews(item);
-        loadSimilarItems(item);
-        loadOwner(item);
-        loadAddressById(item.address.id);
+        if(item != null) {
+            loadBookings(item);
+            loadReviews(item);
+            loadSimilarItems(item);
+            loadOwner(item);
+            loadAddressById(item.address.id);
+        }
     }
 
     private void checkIfLoaded() {

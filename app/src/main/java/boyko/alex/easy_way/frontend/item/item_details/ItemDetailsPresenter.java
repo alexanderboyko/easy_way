@@ -135,52 +135,58 @@ class ItemDetailsPresenter {
     }
 
     private void initItemData(Item item){
-        if (item.mainPhoto != null) {
-            ArrayList<String > photos = new ArrayList<>();
-            photos.add(item.mainPhoto);
-            if(item.photos != null && !item.photos.isEmpty()) photos.addAll(item.photos);
-            view.setItemPhoto(photos);
+        if (item != null) {
+
+
+            if (item.mainPhoto != null) {
+                ArrayList<String> photos = new ArrayList<>();
+                photos.add(item.mainPhoto);
+                if (item.photos != null && !item.photos.isEmpty()) photos.addAll(item.photos);
+                view.setItemPhoto(photos);
+            }
+
+            view.setTitle(item.title);
+
+            //set price
+            String priceFormatted = String.format(Locale.getDefault(), "%.2f", item.price) + " zł";
+            PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
+            if (priceType != null && priceType.name != null) {
+                priceFormatted += " " + priceType.name;
+            }
+            view.setPrice(priceFormatted);
+
+            //rating
+            if (item.ratingAverage == 0) {
+                view.setRating(ApplicationController.getInstance().getString(R.string.no_rating));
+            } else {
+                String rating = ApplicationController.getInstance().getString(R.string.rating) + ": " + item.ratingAverage;
+                view.setRating(rating);
+            }
+
+            if (item.description == null || item.description.isEmpty()) {
+                view.setDescription(ApplicationController.getInstance().getString(R.string.no_info));
+            } else {
+                view.setDescription(item.description);
+            }
+
+            if (item.notes == null || item.notes.isEmpty()) {
+                view.setNotes(ApplicationController.getInstance().getString(R.string.no_info));
+            } else {
+                view.setNotes(item.notes);
+            }
+
+            if (item.address != null && item.address.name != null)
+                view.setLocation(item.address.name);
+
+            view.setMonthName(DateHelper.getFormattedCalendarMonthName(DateHelper.getCurrentTime()));
+
+            if (DataMediator.getLike(item.id) != null) {
+                view.setLikeIcon(true);
+            }
+
+            if (item.ownerId.equals(DataMediator.getUser().id))
+                view.setContactButtonVisibility(View.GONE);
         }
-
-        view.setTitle(item.title);
-
-        //set price
-        String priceFormatted = String.format(Locale.getDefault(), "%.2f", item.price) + " zł";
-        PriceType priceType = DataMediator.getPriceType(item.priceTypeId);
-        if (priceType != null && priceType.name != null) {
-            priceFormatted += " " + priceType.name;
-        }
-        view.setPrice(priceFormatted);
-
-        //rating
-        if (item.ratingAverage == 0) {
-            view.setRating(ApplicationController.getInstance().getString(R.string.no_rating));
-        } else {
-            String rating = ApplicationController.getInstance().getString(R.string.rating) + ": " + item.ratingAverage;
-            view.setRating(rating);
-        }
-
-        if(item.description == null || item.description.isEmpty()){
-            view.setDescription(ApplicationController.getInstance().getString(R.string.no_info));
-        }else{
-            view.setDescription(item.description);
-        }
-
-        if (item.notes == null || item.notes.isEmpty()){
-            view.setNotes(ApplicationController.getInstance().getString(R.string.no_info));
-        }else{
-            view.setNotes(item.notes);
-        }
-
-        if (item.address != null && item.address.name != null) view.setLocation(item.address.name);
-
-        view.setMonthName(DateHelper.getFormattedCalendarMonthName(DateHelper.getCurrentTime()));
-
-        if(DataMediator.getLike(item.id) != null){
-            view.setLikeIcon(true);
-        }
-
-        if(item.ownerId.equals(DataMediator.getUser().id)) view.setContactButtonVisibility(View.GONE);
     }
 
     void loadingFinished() {

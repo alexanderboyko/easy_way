@@ -308,6 +308,7 @@ class AddItemModel {
 
     void uploadItem() {
         item.createdAt = DateHelper.getCurrentTime();
+        item.ratingCount = 0;
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items")
                 .add(item)

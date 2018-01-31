@@ -14,6 +14,7 @@ public class Item implements Serializable{
     public String id;
     public String title,description, notes;
     public double price, ratingSum, ratingAverage;
+    public int ratingCount;
     public String categoryId, priceTypeId, ownerId;
     public Address address;
     public ArrayList<String> photos;

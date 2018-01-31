@@ -268,15 +268,6 @@ public class ItemsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         });
 
         holder.like.setVisibility(View.GONE);
-//        if (item.isLiked) holder.like.setImageResource(R.drawable.ic_favorite_red_24px);
-//        else holder.like.setImageResource(R.drawable.ic_favorite_border_white_24px);
-//
-//        holder.like.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onItemClickListener.onLikeClicked(holder.getAdapterPosition());
-//            }
-//        });
 
         holder.edit.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -83,11 +83,21 @@ public class InboxViewActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+        try {
+            if(autoUpdateThread.isAlive()) autoUpdateThread.interrupt();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        try {
+            if(autoUpdateThread.isInterrupted()) autoUpdateThread.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -111,7 +121,12 @@ public class InboxViewActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        try{autoUpdateThread.interrupt();}catch (Exception e){e.printStackTrace();}
+        try {
+            if(autoUpdateThread.isAlive()) autoUpdateThread.interrupt();
+            autoUpdateThread = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.onDestroy();
     }
 
@@ -167,7 +182,7 @@ public class InboxViewActivity extends AppCompatActivity {
         });
     }
 
-    private void initAutoUpdateThread(){
+    private void initAutoUpdateThread() {
         autoUpdateThread = new Thread() {
 
             @Override

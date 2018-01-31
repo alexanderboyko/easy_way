@@ -128,6 +128,32 @@ public class ExploreViewActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+        try {
+            if(thread.isAlive()) thread.interrupt();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            if(thread.isAlive()) thread.interrupt();
+            thread = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            if(thread.isInterrupted()) thread.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -166,16 +192,6 @@ public class ExploreViewActivity extends AppCompatActivity {
         if (ExplorePresenter.getInstance(this).onBackPressed()) {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        try {
-            thread.interrupt();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        super.onDestroy();
     }
 
     private void init() {
